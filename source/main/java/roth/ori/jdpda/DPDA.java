@@ -34,7 +34,7 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 		return EnumSet.<Q>allOf(qClass);
 	}
 
-	public Collection<Sigma> letters() {
+	public Collection<Sigma> alphabet() {
 		return EnumSet.<Sigma>allOf(sigmaClass);
 	}
 
@@ -65,20 +65,19 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 		return initialSymbol;
 	}
 
-	public ConsolidatedEdge<Q, Sigma, Gamma> getConsolidatedTransition(Q origin, Sigma letter, List<Gamma> string) {
+	public Edge<Q, Sigma, Gamma> getConsolidatedTransition(Q origin, Sigma letter, Gamma symbol) {
 		Q currentState = origin;
 		Sigma currentLetter = letter;
 		Stack<Gamma> stack = new Stack<>();
-		for (Gamma symbol : string)
-			stack.push(symbol);
+		stack.push(symbol);
 		for (;;) {
 			if (stack.isEmpty())
-				return new ConsolidatedEdge<>(origin, letter, string, currentState, stack);
+				return new Edge<>(origin, letter, symbol, currentState, stack);
 			Gamma currentSymbol = stack.pop();
 			Edge<Q, Sigma, Gamma> transition = delta(currentState, currentLetter, currentSymbol);
 			if (transition == null) {
 				Collections.reverse(stack);
-				return new ConsolidatedEdge<>(origin, letter, string, currentState, stack);
+				return new Edge<>(origin, letter, symbol, currentState, stack);
 			}
 			currentLetter = null;
 			currentState = transition.destination;
@@ -182,56 +181,6 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 			return origin.equals(other.origin)
 					&& (letter == null && other.letter == null || letter.equals(other.letter))
 					&& symbol.equals(other.symbol) && destination.equals(other.destination)
-					&& string.equals(other.string);
-		}
-	}
-
-	public static class ConsolidatedEdge<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends Enum<Gamma>> {
-		public final Q origin;
-		public final Sigma letter;
-		public final List<Gamma> initialString;
-		public final Q destination;
-		public final List<Gamma> string;
-		@SuppressWarnings("rawtypes")
-		public static final ConsolidatedEdge STUCK = new ConsolidatedEdge<>(null, null, null, null, null);
-
-		public ConsolidatedEdge(Q origin, Sigma letter, List<Gamma> initialString, Q destination, List<Gamma> string) {
-			this.origin = origin;
-			this.letter = letter;
-			this.initialString = new ArrayList<>(initialString);
-			this.destination = destination;
-			this.string = new ArrayList<>(string);
-		}
-
-		public boolean isEpsilonTransition() {
-			return letter == null;
-		}
-
-		@Override
-		public int hashCode() {
-			int result = 1;
-			if (this == STUCK)
-				return result;
-			result = result * 31 + origin.hashCode();
-			result = result * 31 + letter.hashCode();
-			result = result * 31 + initialString.hashCode();
-			result = result * 31 + destination.hashCode();
-			result = result * 31 + string.hashCode();
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (!(obj instanceof ConsolidatedEdge))
-				return false;
-			ConsolidatedEdge<?, ?, ?> other = (ConsolidatedEdge<?, ?, ?>) obj;
-			if (this == STUCK)
-				return obj == STUCK;
-			return origin.equals(other.origin)
-					&& (letter == null && other.letter == null || letter.equals(other.letter))
-					&& initialString.equals(other.initialString) && destination.equals(other.destination)
 					&& string.equals(other.string);
 		}
 	}
