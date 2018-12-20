@@ -35,11 +35,9 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Sigma extends Enum<Sig
 				.append(requestTypeName(dpda.initialState(), Collections.singletonList(dpda.initialStackSymbol())))
 				.append("<");
 		List<String> typeVariables = new ArrayList<>();
-		for (@SuppressWarnings("unused")
-		Q q : dpda.states())
-			for (@SuppressWarnings("unused")
-			Sigma s : dpda.alphabetEpsilon())
-				typeVariables.add(stuckName());
+		for (Q q : dpda.states())
+			for (Sigma s : dpda.alphabetEpsilon())
+				typeVariables.add(dpda.acceptingStates.contains(q) && s == null ? acceptName() : terminatedName());
 		result.append(String.join(",", typeVariables)).append("> START() {return null;}");
 		for (String classEncoding : types.values())
 			result.append(classEncoding);

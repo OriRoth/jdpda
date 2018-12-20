@@ -83,8 +83,7 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 			Edge<Q, Sigma, Gamma> transition = delta(currentState, currentLetter, currentSymbol);
 			if (transition == null) {
 				if (currentLetter != null) {
-					currentLetter = null;
-					continue;
+					return null;
 				}
 				Collections.reverse(stack);
 				return new Edge<>(origin, letter, symbol, currentState, stack);
