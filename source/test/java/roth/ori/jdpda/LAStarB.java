@@ -30,7 +30,7 @@ public class LAStarB {
 			.setInitialStackSymbol(X) //
 			.build();
 
-	String clazz = DPDA2JavaFluentAPIEncoder.getJavaFluentAPI("LAStarB", dpda);
+	String clazz = new DPDA2JavaFluentAPIEncoder<>("LAStarB", dpda).encoding;
 
 	@Test
 	public void aStarB() {

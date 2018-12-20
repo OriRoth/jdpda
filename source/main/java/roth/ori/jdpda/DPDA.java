@@ -38,6 +38,12 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 		return EnumSet.<Sigma>allOf(sigmaClass);
 	}
 
+	public Collection<Sigma> alphabetEpsilon() {
+		Set<Sigma> result = new LinkedHashSet<>(alphabet());
+		result.add(null);
+		return result;
+	}
+
 	public Collection<Gamma> stackSymbols() {
 		return EnumSet.<Gamma>allOf(gammaClass);
 	}
@@ -73,14 +79,19 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 		for (;;) {
 			if (stack.isEmpty())
 				return new Edge<>(origin, letter, symbol, currentState, stack);
-			Gamma currentSymbol = stack.pop();
+			Gamma currentSymbol = stack.peek();
 			Edge<Q, Sigma, Gamma> transition = delta(currentState, currentLetter, currentSymbol);
 			if (transition == null) {
+				if (currentLetter != null) {
+					currentLetter = null;
+					continue;
+				}
 				Collections.reverse(stack);
 				return new Edge<>(origin, letter, symbol, currentState, stack);
 			}
 			currentLetter = null;
 			currentState = transition.destination;
+			stack.pop();
 			for (Gamma stackSymbol : transition.string)
 				stack.push(stackSymbol);
 		}
@@ -145,7 +156,7 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 			this.letter = letter;
 			this.symbol = symbol;
 			this.destination = destination;
-			this.string = new ArrayList<>(string);
+			this.string = string == null ? null : new ArrayList<>(string);
 		}
 
 		public boolean isEpsilonTransition() {
@@ -153,7 +164,9 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 		}
 
 		public boolean match(Q state, Sigma letter, Gamma symbol) {
-			return this != STUCK && origin.equals(state) && this.letter.equals(letter) && this.symbol.equals(symbol);
+			return this != STUCK && origin.equals(state)
+					&& (this.letter == null ? letter == null : this.letter.equals(letter))
+					&& this.symbol.equals(symbol);
 		}
 
 		@Override
@@ -162,7 +175,7 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 			if (this == STUCK)
 				return result;
 			result = result * 31 + origin.hashCode();
-			result = result * 31 + letter.hashCode();
+			result = result * 31 + (letter == null ? 1 : letter.hashCode());
 			result = result * 31 + symbol.hashCode();
 			result = result * 31 + destination.hashCode();
 			result = result * 31 + string.hashCode();
@@ -182,6 +195,12 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 					&& (letter == null && other.letter == null || letter.equals(other.letter))
 					&& symbol.equals(other.symbol) && destination.equals(other.destination)
 					&& string.equals(other.string);
+		}
+
+		@Override
+		public String toString() {
+			return "(" + origin + "," + (letter == null ? "E" : letter) + "," + symbol + "," + destination + ","
+					+ string + ")";
 		}
 	}
 }
