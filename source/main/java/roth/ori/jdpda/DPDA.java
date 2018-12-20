@@ -3,10 +3,12 @@ package roth.ori.jdpda;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends Enum<Gamma>> {
 	public final Class<Q> qClass;
@@ -44,6 +46,13 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 		return delta;
 	}
 
+	public Edge<Q, Sigma, Gamma> delta(Q origin, Sigma letter, Gamma symbol) {
+		for (Edge<Q, Sigma, Gamma> edge : delta)
+			if (edge.match(origin, letter, symbol))
+				return edge;
+		return null;
+	}
+
 	public boolean isAccepting(Q state) {
 		return acceptingStates.contains(state);
 	}
@@ -54,6 +63,28 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 
 	public Gamma initialStackSymbol() {
 		return initialSymbol;
+	}
+
+	public ConsolidatedEdge<Q, Sigma, Gamma> getConsolidatedTransition(Q origin, Sigma letter, List<Gamma> string) {
+		Q currentState = origin;
+		Sigma currentLetter = letter;
+		Stack<Gamma> stack = new Stack<>();
+		for (Gamma symbol : string)
+			stack.push(symbol);
+		for (;;) {
+			if (stack.isEmpty())
+				return new ConsolidatedEdge<>(origin, letter, string, currentState, stack);
+			Gamma currentSymbol = stack.pop();
+			Edge<Q, Sigma, Gamma> transition = delta(currentState, currentLetter, currentSymbol);
+			if (transition == null) {
+				Collections.reverse(stack);
+				return new ConsolidatedEdge<>(origin, letter, string, currentState, stack);
+			}
+			currentLetter = null;
+			currentState = transition.destination;
+			for (Gamma stackSymbol : transition.string)
+				stack.push(stackSymbol);
+		}
 	}
 
 	public static class Builder<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends Enum<Gamma>> {
@@ -79,8 +110,8 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 			return this;
 		}
 
-		public Builder<Q, Sigma, Gamma> setAccepting(Q state) {
-			acceptingStates.add(state);
+		public Builder<Q, Sigma, Gamma> setAccepting(@SuppressWarnings("unchecked") Q... states) {
+			Collections.addAll(acceptingStates, states);
 			return this;
 		}
 
@@ -95,6 +126,8 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 		}
 
 		public DPDA<Q, Sigma, Gamma> build() {
+			assert initialState != null;
+			assert initialSymbol != null;
 			return new DPDA<>(qClass, sigmaClass, gammaClass, delta, acceptingStates, initialState, initialSymbol);
 		}
 	}
@@ -105,6 +138,8 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 		public final Gamma symbol;
 		public final Q destination;
 		public final List<Gamma> string;
+		@SuppressWarnings("rawtypes")
+		public static final Edge STUCK = new Edge<>(null, null, null, null, null);
 
 		public Edge(Q origin, Sigma letter, Gamma symbol, Q destination, List<Gamma> string) {
 			this.origin = origin;
@@ -116,6 +151,88 @@ public class DPDA<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends En
 
 		public boolean isEpsilonTransition() {
 			return letter == null;
+		}
+
+		public boolean match(Q state, Sigma letter, Gamma symbol) {
+			return this != STUCK && origin.equals(state) && this.letter.equals(letter) && this.symbol.equals(symbol);
+		}
+
+		@Override
+		public int hashCode() {
+			int result = 1;
+			if (this == STUCK)
+				return result;
+			result = result * 31 + origin.hashCode();
+			result = result * 31 + letter.hashCode();
+			result = result * 31 + symbol.hashCode();
+			result = result * 31 + destination.hashCode();
+			result = result * 31 + string.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!(obj instanceof Edge))
+				return false;
+			Edge<?, ?, ?> other = (Edge<?, ?, ?>) obj;
+			if (this == STUCK)
+				return obj == STUCK;
+			return origin.equals(other.origin)
+					&& (letter == null && other.letter == null || letter.equals(other.letter))
+					&& symbol.equals(other.symbol) && destination.equals(other.destination)
+					&& string.equals(other.string);
+		}
+	}
+
+	public static class ConsolidatedEdge<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends Enum<Gamma>> {
+		public final Q origin;
+		public final Sigma letter;
+		public final List<Gamma> initialString;
+		public final Q destination;
+		public final List<Gamma> string;
+		@SuppressWarnings("rawtypes")
+		public static final ConsolidatedEdge STUCK = new ConsolidatedEdge<>(null, null, null, null, null);
+
+		public ConsolidatedEdge(Q origin, Sigma letter, List<Gamma> initialString, Q destination, List<Gamma> string) {
+			this.origin = origin;
+			this.letter = letter;
+			this.initialString = new ArrayList<>(initialString);
+			this.destination = destination;
+			this.string = new ArrayList<>(string);
+		}
+
+		public boolean isEpsilonTransition() {
+			return letter == null;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = 1;
+			if (this == STUCK)
+				return result;
+			result = result * 31 + origin.hashCode();
+			result = result * 31 + letter.hashCode();
+			result = result * 31 + initialString.hashCode();
+			result = result * 31 + destination.hashCode();
+			result = result * 31 + string.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!(obj instanceof ConsolidatedEdge))
+				return false;
+			ConsolidatedEdge<?, ?, ?> other = (ConsolidatedEdge<?, ?, ?>) obj;
+			if (this == STUCK)
+				return obj == STUCK;
+			return origin.equals(other.origin)
+					&& (letter == null && other.letter == null || letter.equals(other.letter))
+					&& initialString.equals(other.initialString) && destination.equals(other.destination)
+					&& string.equals(other.string);
 		}
 	}
 }
