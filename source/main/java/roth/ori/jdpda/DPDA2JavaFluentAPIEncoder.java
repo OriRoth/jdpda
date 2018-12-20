@@ -32,8 +32,15 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Sigma extends Enum<Sig
 				.append(terminatedName()).append("{void TERMINATED();}").append("interface ").append(acceptName())
 				.append("{void ACCEPT();}");
 		result.append("public static ")
-				.append(getType(dpda.initialState(), null, Collections.singletonList(dpda.initialStackSymbol())))
-				.append(" START() {return null;}");
+				.append(requestTypeName(dpda.initialState(), Collections.singletonList(dpda.initialStackSymbol())))
+				.append("<");
+		List<String> typeVariables = new ArrayList<>();
+		for (@SuppressWarnings("unused")
+		Q q : dpda.states())
+			for (@SuppressWarnings("unused")
+			Sigma s : dpda.alphabetEpsilon())
+				typeVariables.add(stuckName());
+		result.append(String.join(",", typeVariables)).append("> START() {return null;}");
 		for (String classEncoding : types.values())
 			result.append(classEncoding);
 		return result.append("}").toString();
@@ -63,11 +70,12 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Sigma extends Enum<Sig
 		if (!knownTypes.add(identifier))
 			return className;
 		StringBuilder classEncoding = new StringBuilder();
-		classEncoding.append("class ").append(className).append("<");
+		classEncoding.append("interface ").append(className).append("<");
+		List<String> typeVariables = new ArrayList<>();
 		for (Q q : dpda.states())
 			for (Sigma s : dpda.alphabetEpsilon())
-				classEncoding.append(jumpTypeVariableName(q, s));
-		classEncoding.append(">{");
+				typeVariables.add(jumpTypeVariableName(q, s));
+		classEncoding.append(String.join(",", typeVariables)).append(">{");
 		for (Sigma letter : dpda.alphabet())
 			classEncoding.append(getType(state, letter, string)).append(" ").append(letter.name()).append("();");
 		types.put(identifier, classEncoding.append("}").toString());
