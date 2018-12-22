@@ -10,11 +10,38 @@ import java.util.Set;
 
 import roth.ori.jdpda.DPDA.Edge;
 
+/**
+ * Encodes deterministic pushdown automaton ({@link DPDA}) as a Java class; A
+ * method calls chain of the form {@code START().a().b()...z().ACCEPT()}
+ * type-checks against this class if, and only if, the original automaton
+ * accepts the input word {@code ab...z};
+ * 
+ * @author Ori Roth
+ *
+ * @param <Q> states enum
+ * @param <Sigma> alphabet enum
+ * @param <Gamma> stack symbols enum
+ */
 public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Sigma extends Enum<Sigma>, Gamma extends Enum<Gamma>> {
+	/**
+	 * Class name.
+	 */
 	public final String name;
+	/**
+	 * {@link DPDA} origin.
+	 */
 	public final DPDA<Q, Sigma, Gamma> dpda;
+	/**
+	 * Class encoding.
+	 */
 	public final String encoding;
+	/**
+	 * Encoded types.
+	 */
 	private final Map<TypeIdentifier<Q, Gamma>, String> types;
+	/**
+	 * Types encoded.
+	 */
 	private final Set<TypeIdentifier<Q, Gamma>> knownTypes;
 
 	public DPDA2JavaFluentAPIEncoder(String name, DPDA<Q, Sigma, Gamma> dpda) {
@@ -25,6 +52,9 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Sigma extends Enum<Sig
 		this.encoding = getJavaFluentAPI();
 	}
 
+	/**
+	 * @return class encoding
+	 */
 	private String getJavaFluentAPI() {
 		StringBuilder result = new StringBuilder();
 		result.append("public class ").append(name).append("{");
@@ -43,6 +73,15 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Sigma extends Enum<Sig
 		return result.append("}").toString();
 	}
 
+	/**
+	 * Computes the type representing the state of the automaton after consuming an
+	 * input letter.
+	 * 
+	 * @param state  current state
+	 * @param letter current input letter
+	 * @param push   current stack symbols to be pushed
+	 * @return next state type
+	 */
 	public String getType(Q state, Sigma letter, List<Gamma> push) {
 		if (push.isEmpty()) {
 			assert letter == null;
@@ -62,6 +101,14 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Sigma extends Enum<Sig
 		return result.append(String.join(",", typeVariables)).append(">").toString();
 	}
 
+	/**
+	 * Get type name given a state and stack symbols to push.
+	 * If this type is not present, it is created.
+	 * 
+	 * @param state current state
+	 * @param string current stack symbols to be pushed
+	 * @return type name
+	 */
 	private String requestTypeName(Q state, List<Gamma> string) {
 		String className = pushTypeName(state, string);
 		TypeIdentifier<Q, Gamma> identifier = new TypeIdentifier<>(state, string);
@@ -80,26 +127,47 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Sigma extends Enum<Sig
 		return className;
 	}
 
-	public static String stuckName() {
+	/**
+	 * @return name of the "stuck" interface.
+	 */
+	private static String stuckName() {
 		return "Stuck";
 	}
 
-	public static String terminatedName() {
+	/**
+	 * @return name of the "terminated" interface.
+	 */
+	private static String terminatedName() {
 		return "Terminated";
 	}
 
-	public static String acceptName() {
+	/**
+	 * @return name of the "accept" interface.
+	 */
+	private static String acceptName() {
 		return "Accept";
 	}
 
-	public String jumpTypeVariableName(Q state) {
+	/**
+	 * @param state jump destination
+	 * @return jump type variable name
+	 */
+	private String jumpTypeVariableName(Q state) {
 		return "jump_" + state.name();
 	}
 
-	public String pushTypeName(Q state, List<Gamma> string) {
+	/**
+	 * @param state current state
+	 * @param string current stack symbols to be pushed
+	 * @return type name
+	 */
+	private String pushTypeName(Q state, List<Gamma> string) {
 		return "push_" + state.name() + "_" + string.stream().map(symbol -> symbol.name()).reduce("", String::concat);
 	}
 
+	/**
+	 * Identifies a type by a state and a sequence of stack symbols to be pushed.
+	 */
 	private static class TypeIdentifier<Q extends Enum<Q>, Gamma extends Enum<Gamma>> {
 		private final Q state;
 		private final List<Gamma> string;
