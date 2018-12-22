@@ -35,7 +35,7 @@ public class LExtendedBalancedParentheses {
 	String clazz = new DPDA2JavaFluentAPIEncoder<>("LExtendedBalancedParentheses", dpda).encoding;
 
 	@Test
-	public void aStarB() {
+	public void extendedBalancedParentheses() {
 		System.out.println(clazz);
 	}
 }
