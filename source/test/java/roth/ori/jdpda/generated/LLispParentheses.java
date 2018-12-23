@@ -100,7 +100,8 @@ public class LLispParentheses {
 	public static void main(String[] args) {
 		START().lp().lp().rp().rp().ACCEPT(); // (())
 		START().lp().lp().rp().rp().rp().STUCK(); // (()))
-		START().lp().LP().rp().rp().rp().RP().lp().rp().ACCEPT(); // ([)))]()
+		START().lp().LP().rp().rp().rp().lp().RP().lp().rp().ACCEPT(); // ([)))(]()
 		START().lp().LP().rp().rp().TERMINATED(); // ([))
+		START().LP().lp().rp().rp().RP().LP().LP().RP().ACCEPT(); // [())][[]
 	}
 }
