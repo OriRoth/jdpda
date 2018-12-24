@@ -1,10 +1,16 @@
 package roth.ori.jdpda;
 
-import static roth.ori.jdpda.LLispParentheses.Letter.*;
-import static roth.ori.jdpda.LLispParentheses.StackSymbol.*;
-import static roth.ori.jdpda.LLispParentheses.State.*;
-
-import org.junit.Test;
+import static roth.ori.jdpda.LLispParentheses.Letter.LP;
+import static roth.ori.jdpda.LLispParentheses.Letter.RP;
+import static roth.ori.jdpda.LLispParentheses.Letter.lp;
+import static roth.ori.jdpda.LLispParentheses.Letter.rp;
+import static roth.ori.jdpda.LLispParentheses.StackSymbol.E;
+import static roth.ori.jdpda.LLispParentheses.StackSymbol.X;
+import static roth.ori.jdpda.LLispParentheses.State.q0;
+import static roth.ori.jdpda.LLispParentheses.State.q1;
+import static roth.ori.jdpda.LLispParentheses.State.q2;
+import static roth.ori.jdpda.LLispParentheses.State.q3;
+import static roth.ori.jdpda.generated.LLispParenthesesAPI.START;
 
 public class LLispParentheses {
 	enum State {
@@ -19,7 +25,7 @@ public class LLispParentheses {
 		E, X
 	}
 
-	DPDA<State, Letter, StackSymbol> dpda = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
+	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
 			.delta(q0, lp, E, q1, E, X) //
 			.delta(q1, lp, X, q1, X, X) //
 			.delta(q1, rp, X, q1) //
@@ -38,10 +44,11 @@ public class LLispParentheses {
 			.setInitialStackSymbol(E) //
 			.build();
 
-	String clazz = new DPDA2JavaFluentAPIEncoder<>("LLispParentheses", dpda).encoding;
-
-	@Test
-	public void lispParentheses() {
-		System.out.println(clazz);
+	public static void main(String[] args) {
+		START().lp().lp().rp().rp().ACCEPT(); // (())
+		START().lp().lp().rp().rp().rp().STUCK(); // (()))
+		START().lp().LP().rp().rp().rp().lp().RP().lp().rp().ACCEPT(); // ([)))(]()
+		START().lp().LP().rp().rp().TERMINATED(); // ([))
+		START().LP().lp().rp().rp().RP().LP().LP().RP().ACCEPT(); // [())][[]
 	}
 }

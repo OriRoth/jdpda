@@ -1,10 +1,12 @@
 package roth.ori.jdpda;
 
-import static roth.ori.jdpda.LBalancedParentheses.Letter.*;
-import static roth.ori.jdpda.LBalancedParentheses.StackSymbol.*;
-import static roth.ori.jdpda.LBalancedParentheses.State.*;
-
-import org.junit.Test;
+import static roth.ori.jdpda.LBalancedParentheses.Letter.lp;
+import static roth.ori.jdpda.LBalancedParentheses.Letter.rp;
+import static roth.ori.jdpda.LBalancedParentheses.StackSymbol.E;
+import static roth.ori.jdpda.LBalancedParentheses.StackSymbol.X;
+import static roth.ori.jdpda.LBalancedParentheses.State.q0;
+import static roth.ori.jdpda.LBalancedParentheses.State.q1;
+import static roth.ori.jdpda.generated.LBalancedParenthesesAPI.START;
 
 public class LBalancedParentheses {
 	enum State {
@@ -19,7 +21,7 @@ public class LBalancedParentheses {
 		E, X
 	}
 
-	DPDA<State, Letter, StackSymbol> dpda = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
+	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
 			.delta(q0, lp, E, q1, E, X) //
 			.delta(q1, lp, X, q1, X, X) //
 			.delta(q1, rp, X, q1) //
@@ -29,10 +31,7 @@ public class LBalancedParentheses {
 			.setInitialStackSymbol(E) //
 			.build();
 
-	String clazz = new DPDA2JavaFluentAPIEncoder<>("LBalancedParentheses", dpda).encoding;
-
-	@Test
-	public void balancedParentheses() {
-		System.out.println(clazz);
+	public static void main(String[] args) {
+		START().lp().lp().lp().rp().rp().rp().ACCEPT();
 	}
 }

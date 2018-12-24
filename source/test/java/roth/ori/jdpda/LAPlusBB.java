@@ -1,10 +1,15 @@
 package roth.ori.jdpda;
 
-import static roth.ori.jdpda.LAPlusBB.Letter.*;
-import static roth.ori.jdpda.LAPlusBB.StackSymbol.*;
-import static roth.ori.jdpda.LAPlusBB.State.*;
+import static roth.ori.jdpda.LAPlusBB.Letter.a;
+import static roth.ori.jdpda.LAPlusBB.Letter.b;
+import static roth.ori.jdpda.LAPlusBB.StackSymbol.X;
+import static roth.ori.jdpda.LAPlusBB.StackSymbol.Y;
+import static roth.ori.jdpda.LAPlusBB.State.q0;
+import static roth.ori.jdpda.LAPlusBB.State.q1;
+import static roth.ori.jdpda.LAPlusBB.State.q2;
+import static roth.ori.jdpda.LAPlusBB.State.q3;
 
-import org.junit.Test;
+import static roth.ori.jdpda.generated.LAPlusBBAPI.START;
 
 public class LAPlusBB {
 	enum State {
@@ -19,7 +24,7 @@ public class LAPlusBB {
 		X, Y
 	}
 
-	DPDA<State, Letter, StackSymbol> dpda = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
+	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
 			.delta(q0, a, X, q1, Y, X) //
 			.delta(q1, a, X, q1, X, X) //
 			.delta(q1, b, X, q2) //
@@ -29,11 +34,10 @@ public class LAPlusBB {
 			.setAccepting(q3) //
 			.setInitialStackSymbol(X) //
 			.build();
-
-	String clazz = new DPDA2JavaFluentAPIEncoder<>("LAPlusBB", dpda).encoding;
-
-	@Test
-	public void aPlusBB() {
-		System.out.println(clazz);
+	
+	public static void main(String[] args) {
+		START().a().a().a().a().b().b().ACCEPT();
+		START().b().STUCK();
+		START().a().b().a().STUCK();
 	}
 }

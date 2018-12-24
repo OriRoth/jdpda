@@ -5,8 +5,7 @@ import static roth.ori.jdpda.LAStar.StackSymbol.X;
 import static roth.ori.jdpda.LAStar.State.q0;
 import static roth.ori.jdpda.LAStar.State.q1;
 import static roth.ori.jdpda.LAStar.State.q2;
-
-import org.junit.Test;
+import static roth.ori.jdpda.generated.LAStarAPI.START;
 
 public class LAStar {
 	enum State {
@@ -21,7 +20,7 @@ public class LAStar {
 		X
 	}
 
-	DPDA<State, Letter, StackSymbol> dpda = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
+	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
 			.delta(q0, a, X, q1, X) //
 			.delta(q1, a, X, q2, X) //
 			.delta(q2, a, X, q2, X) //
@@ -30,10 +29,9 @@ public class LAStar {
 			.setInitialStackSymbol(X) //
 			.build();
 
-	String clazz = new DPDA2JavaFluentAPIEncoder<>("LAStar", dpda).encoding;
-
-	@Test
-	public void aStarB() {
-		System.out.println(clazz);
+	public static void main(String[] args) {
+		START().a().ACCEPT();
+		START().a().a().ACCEPT();
+		START().TERMINATED();
 	}
 }
