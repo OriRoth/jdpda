@@ -177,20 +177,13 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 
 		@Override
 		public int hashCode() {
-			int result = 1;
-			result = result * 31 + q.hashCode();
-			result = result * 31 + α.hashCode();
-			return result;
+			return 31 * (q.hashCode() + 31) + α.hashCode();
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (!(obj instanceof TypeIdentifier))
-				return false;
-			TypeIdentifier<?, ?> other = (TypeIdentifier<?, ?>) obj;
-			return q.equals(other.q) && α.equals(other.α);
+		public boolean equals(Object o) {
+			return o == this || (o instanceof TypeIdentifier && q.equals(((TypeIdentifier<?, ?>) o).q)
+					&& α.equals(((TypeIdentifier<?, ?>) o).α));
 		}
 	}
 }

@@ -132,24 +132,22 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	 * @return matching consolidated transition
 	 */
 	public δ<Q, Σ, Γ> consolidate(Q q, Σ σ, Γ γ) {
-		Q currentq = q;
+		
 		Σ currentσ = σ;
 		Stack<Γ> S = new Stack<>();
 		S.push(γ);
-		for (;;) {
+		for (Q q$ = q;;) {
 			if (S.isEmpty())
-				return new δ<>(q, σ, γ, currentq, S);
-			Γ currentγ = S.peek();
-			δ<Q, Σ, Γ> Δ = δ(currentq, currentσ, currentγ);
+				return new δ<>(q, σ, γ, q$, S);
+			δ<Q, Σ, Γ> Δ = δ(q$, currentσ, S.peek());
 			if (Δ == null) {
-				if (currentσ != null) {
+				if (currentσ != null)
 					return null;
-				}
 				Collections.reverse(S);
-				return new δ<>(q, σ, γ, currentq, S);
+				return new δ<>(q, σ, γ, q$, S);
 			}
 			currentσ = null;
-			currentq = Δ.q_;
+			q$ = Δ.q_;
 			S.pop();
 			for (Γ stackSymbol : Δ.α)
 				S.push(stackSymbol);
@@ -265,30 +263,26 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 			int result = 1;
 			if (this == STUCK)
 				return result;
-			result = result * 31 + q.hashCode();
-			result = result * 31 + (σ == null ? 1 : σ.hashCode());
-			result = result * 31 + γ.hashCode();
-			result = result * 31 + q_.hashCode();
-			result = result * 31 + α.hashCode();
-			return result;
+			result = 31 * (γ.hashCode() + 31 * ((σ == null ? 1 : σ.hashCode()) + 31 * (31 * result + q.hashCode())))
+					+ q_.hashCode();
+			return result = 31 * result + α.hashCode();
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(Object o) {
+			if (o == this)
 				return true;
-			if (!(obj instanceof δ))
+			if (!(o instanceof δ))
 				return false;
-			δ<?, ?, ?> other = (δ<?, ?, ?>) obj;
-			if (this == STUCK)
-				return obj == STUCK;
-			return q.equals(other.q) && (σ == null && other.σ == null || σ.equals(other.σ)) && γ.equals(other.γ)
-					&& q_.equals(other.q_) && α.equals(other.α);
+			δ<?, ?, ?> other = (δ<?, ?, ?>) o;
+			return this == STUCK ? o == STUCK
+					: q.equals(other.q) && (σ == null && other.σ == null || σ.equals(other.σ)) && γ.equals(other.γ)
+							&& q_.equals(other.q_) && α.equals(other.α);
 		}
 
 		@Override
 		public String toString() {
-			return "<" + q + "," + (σ == null ? "ε" : σ) + "," + γ + "," + q_ + "," + α + ">";
+			return "<" + q + "," + (σ != null ? σ : "ε") + "," + γ + "," + q_ + "," + α + ">";
 		}
 	}
 }

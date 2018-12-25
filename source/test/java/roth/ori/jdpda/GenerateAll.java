@@ -33,14 +33,14 @@ public class GenerateAll {
 	@Test
 	public void generateAll() throws IOException {
 		System.out.println("Current output directory is " + generatedOutputPath + ".");
-		Path directoryPath = Paths.get("/home/ori/git/jdpda/source/test/java/roth/ori/jdpda/generated/");
+		Path directoryPath = Paths.get("./source/test/java/roth/ori/jdpda/generated/");
 		if (!Files.exists(directoryPath)) {
 			Files.createDirectory(directoryPath);
 			System.out.println("Directory " + directoryPath + " created successfully.");
 		}
 		for (String fileName : files.keySet()) {
 			Files.write(
-					Paths.get("/home/ori/git/jdpda/source/test/java/roth/ori/jdpda/generated/" + fileName + ".java"),
+					Paths.get("./source/test/java/roth/ori/jdpda/generated/" + fileName + ".java"),
 					Collections.singleton(files.get(fileName)), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
 			System.out.println("File " + fileName + ".java written successfully.");
 		}
