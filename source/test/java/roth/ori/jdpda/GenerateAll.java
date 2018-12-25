@@ -39,9 +39,12 @@ public class GenerateAll {
 			System.out.println("Directory " + directoryPath + " created successfully.");
 		}
 		for (String fileName : files.keySet()) {
-			Files.write(
-					Paths.get("/home/ori/git/jdpda/source/test/java/roth/ori/jdpda/generated/" + fileName + ".java"),
-					Collections.singleton(files.get(fileName)), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+			Path filePath = Paths
+					.get("/home/ori/git/jdpda/source/test/java/roth/ori/jdpda/generated/" + fileName + ".java");
+			if (Files.exists(filePath))
+				Files.delete(filePath);
+			Files.write(filePath, Collections.singleton(files.get(fileName)), StandardOpenOption.CREATE,
+					StandardOpenOption.WRITE);
 			System.out.println("File " + fileName + ".java written successfully.");
 		}
 	}
