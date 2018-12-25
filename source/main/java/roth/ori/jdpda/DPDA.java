@@ -23,37 +23,37 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	/**
 	 * States enum class.
 	 */
-	public final Class<Q> QClass;
+	final Class<Q> QClass;
 	/**
 	 * Alphabet enum class. ε is represented by {@code null}.
 	 */
-	public final Class<Σ> ΣClass;
+	final Class<Σ> ΣClass;
 	/**
 	 * Stack symbols enum class.
 	 */
-	public final Class<Γ> ΓClass;
+	final Class<Γ> ΓClass;
 	/**
 	 * Transition function.
 	 */
-	public final Set<δ<Q, Σ, Γ>> δ;
+	final Set<δ<Q, Σ, Γ>> δs;
 	/**
 	 * Accepting states.
 	 */
-	public final Set<Q> F;
+	final Set<Q> F;
 	/**
 	 * Initial state.
 	 */
-	private final Q q0;
+	final Q q0;
 	/**
 	 * Initial stack symbol.
 	 */
 	private final Γ Z;
 
-	public DPDA(Class<Q> QClass, Class<Σ> ΣClass, Class<Γ> ΓClass, Set<δ<Q, Σ, Γ>> δ, Set<Q> F, Q q0, Γ Z) {
+	public DPDA(Class<Q> QClass, Class<Σ> ΣClass, Class<Γ> ΓClass, Set<δ<Q, Σ, Γ>> δs, Set<Q> F, Q q0, Γ Z) {
 		this.QClass = QClass;
 		this.ΣClass = ΣClass;
 		this.ΓClass = ΓClass;
-		this.δ = δ;
+		this.δs = δs;
 		this.F = F;
 		this.q0 = q0;
 		this.Z = Z;
@@ -84,7 +84,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	 * @return the automaton's transition function.
 	 */
 	public Collection<δ<Q, Σ, Γ>> δ() {
-		return δ;
+		return δs;
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	 * @return matching transition
 	 */
 	public δ<Q, Σ, Γ> δ(Q q, Σ σ, Γ γ) {
-		for (δ<Q, Σ, Γ> Δ : δ)
+		for (δ<Q, Σ, Γ> Δ : δs)
 			if (Δ.match(q, σ, γ))
 				return Δ;
 		return null;
@@ -106,13 +106,6 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	 */
 	public boolean isAccepting(Q q) {
 		return F.contains(q);
-	}
-
-	/**
-	 * @return the automaton's initial state.
-	 */
-	public Q q0() {
-		return q0;
 	}
 
 	/**
@@ -132,7 +125,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	 * @return matching consolidated transition
 	 */
 	public δ<Q, Σ, Γ> consolidate(Q q, Σ σ, Γ γ) {
-		
+
 		Σ currentσ = σ;
 		Stack<Γ> S = new Stack<>();
 		S.push(γ);
@@ -147,7 +140,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 				return new δ<>(q, σ, γ, q$, S);
 			}
 			currentσ = null;
-			q$ = Δ.q_;
+			q$ = Δ.q$;
 			S.pop();
 			for (Γ stackSymbol : Δ.α)
 				S.push(stackSymbol);
@@ -162,43 +155,41 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 		private final Class<Q> QClass;
 		private final Class<Σ> ΣClass;
 		private final Class<Γ> ΓClass;
-		private final Set<δ<Q, Σ, Γ>> δ;
-		private final Set<Q> F;
+		private final Set<δ<Q, Σ, Γ>> δ = new LinkedHashSet<>();
+		private final Set<Q> F = new LinkedHashSet<>();
 		private Q q0;
-		private Γ Z;
+		private Γ γ0;
 
 		public Builder(Class<Q> QClass, Class<Σ> ΣClass, Class<Γ> ΓClass) {
 			this.QClass = QClass;
 			this.ΣClass = ΣClass;
 			this.ΓClass = ΓClass;
-			this.δ = new LinkedHashSet<>();
-			this.F = new LinkedHashSet<>();
 		}
 
-		public Builder<Q, Σ, Γ> delta(Q q, Σ σ, Γ γ, Q q_, @SuppressWarnings("unchecked") Γ... α) {
+		public Builder<Q, Σ, Γ> δ(Q q, Σ σ, Γ γ, Q q_, @SuppressWarnings("unchecked") Γ... α) {
 			δ.add(new δ<>(q, σ, γ, q_, Arrays.asList(α)));
 			return this;
 		}
 
-		public Builder<Q, Σ, Γ> setAccepting(@SuppressWarnings("unchecked") Q... qs) {
+		public Builder<Q, Σ, Γ> F(@SuppressWarnings("unchecked") Q... qs) {
 			Collections.addAll(F, qs);
 			return this;
 		}
 
-		public Builder<Q, Σ, Γ> setInitialState(Q q) {
-			q0 = q;
+		public Builder<Q, Σ, Γ> q0(Q q0) {
+			this.q0 = q0;
 			return this;
 		}
 
-		public Builder<Q, Σ, Γ> setInitialStackSymbol(Γ γ) {
-			Z = γ;
+		public Builder<Q, Σ, Γ> γ0(Γ γ0) {
+			this.γ0 = γ0;
 			return this;
 		}
 
-		public DPDA<Q, Σ, Γ> build() {
+		public DPDA<Q, Σ, Γ> go() {
 			assert q0 != null;
-			assert Z != null;
-			return new DPDA<>(QClass, ΣClass, ΓClass, δ, F, q0, Z);
+			assert γ0 != null;
+			return new DPDA<>(QClass, ΣClass, ΓClass, δ, F, q0, γ0);
 		}
 	}
 
@@ -209,34 +200,34 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 		/**
 		 * Current state.
 		 */
-		public final Q q;
+		final Q q;
 		/**
 		 * Current input letter.
 		 */
-		public final Σ σ;
+		final Σ σ;
 		/**
 		 * Current stack symbol.
 		 */
-		public final Γ γ;
+		final Γ γ;
 		/**
 		 * Next state.
 		 */
-		public final Q q_;
+		final Q q$;
 		/**
 		 * Stack symbols to be pushed.
 		 */
-		public final List<Γ> α;
+		final List<Γ> α;
 		/**
 		 * An edge representing termination of computation.
 		 */
 		@SuppressWarnings("rawtypes")
 		public static final δ STUCK = new δ<>(null, null, null, null, null);
 
-		public δ(Q q, Σ σ, Γ γ, Q q_, List<Γ> α) {
+		public δ(Q q, Σ σ, Γ γ, Q q$, List<Γ> α) {
 			this.q = q;
 			this.σ = σ;
 			this.γ = γ;
-			this.q_ = q_;
+			this.q$ = q$;
 			this.α = α == null ? null : new ArrayList<>(α);
 		}
 
@@ -264,7 +255,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 			if (this == STUCK)
 				return result;
 			result = 31 * (γ.hashCode() + 31 * ((σ == null ? 1 : σ.hashCode()) + 31 * (31 * result + q.hashCode())))
-					+ q_.hashCode();
+					+ q$.hashCode();
 			return result = 31 * result + α.hashCode();
 		}
 
@@ -277,12 +268,12 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 			δ<?, ?, ?> other = (δ<?, ?, ?>) o;
 			return this == STUCK ? o == STUCK
 					: q.equals(other.q) && (σ == null && other.σ == null || σ.equals(other.σ)) && γ.equals(other.γ)
-							&& q_.equals(other.q_) && α.equals(other.α);
+							&& q$.equals(other.q$) && α.equals(other.α);
 		}
 
 		@Override
 		public String toString() {
-			return "<" + q + "," + (σ != null ? σ : "ε") + "," + γ + "," + q_ + "," + α + ">";
+			return "<" + q + "," + (σ != null ? σ : "ε") + "," + γ + "," + q$ + "," + α + ">";
 		}
 	}
 }

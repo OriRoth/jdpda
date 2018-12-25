@@ -25,15 +25,15 @@ public class LAPlusBB {
 	}
 
 	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
-			.delta(q0, a, X, q1, Y, X) //
-			.delta(q1, a, X, q1, X, X) //
-			.delta(q1, b, X, q2) //
-			.delta(q2, null, X, q2) //
-			.delta(q2, b, Y, q3) //
-			.setInitialState(q0) //
-			.setAccepting(q3) //
-			.setInitialStackSymbol(X) //
-			.build();
+			.δ(q0, a, X, q1, Y, X) //
+			.δ(q1, a, X, q1, X, X) //
+			.δ(q1, b, X, q2) //
+			.δ(q2, null, X, q2) //
+			.δ(q2, b, Y, q3) //
+			.q0(q0) //
+			.F(q3) //
+			.γ0(X) //
+			.go();
 	
 	public static void main(String[] args) {
 		START().a().a().a().a().b().b().ACCEPT();

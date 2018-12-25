@@ -24,17 +24,17 @@ public class LExtendedBalancedParentheses {
 	}
 
 	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
-			.delta(q0, lp, $, q1, $, X) //
-			.delta(q1, lp, X, q1, X, X) //
-			.delta(q1, rp, X, q1) //
-			.delta(q1, null, $, q0, $) //
-			.delta(q1, RP, X, q2) //
-			.delta(q2, null, X, q2) //
-			.delta(q2, null, $, q0, $) //
-			.setInitialState(q0) //
-			.setAccepting(q0) //
-			.setInitialStackSymbol($) //
-			.build();
+			.δ(q0, lp, $, q1, $, X) //
+			.δ(q1, lp, X, q1, X, X) //
+			.δ(q1, rp, X, q1) //
+			.δ(q1, null, $, q0, $) //
+			.δ(q1, RP, X, q2) //
+			.δ(q2, null, X, q2) //
+			.δ(q2, null, $, q0, $) //
+			.q0(q0) //
+			.F(q0) //
+			.γ0($) //
+			.go();
 
 	public static void main(String[] args) {
 		START().lp().rp().ACCEPT();

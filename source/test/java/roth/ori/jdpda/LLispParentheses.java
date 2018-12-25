@@ -26,23 +26,23 @@ public class LLispParentheses {
 	}
 
 	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
-			.delta(q0, lp, E, q1, E, X) //
-			.delta(q1, lp, X, q1, X, X) //
-			.delta(q1, rp, X, q1) //
-			.delta(q1, null, E, q0, E) //
-			.delta(q1, RP, X, q2) //
-			.delta(q2, null, X, q2) //
-			.delta(q2, null, E, q0, E) //
-			.delta(q0, LP, E, q3, E, X) //
-			.delta(q1, LP, X, q3, X) //
-			.delta(q3, lp, X, q3, X) //
-			.delta(q3, rp, X, q3, X) //
-			.delta(q3, LP, X, q3, X) //
-			.delta(q3, RP, X, q2) //
-			.setInitialState(q0) //
-			.setAccepting(q0) //
-			.setInitialStackSymbol(E) //
-			.build();
+			.δ(q0, lp, E, q1, E, X) //
+			.δ(q1, lp, X, q1, X, X) //
+			.δ(q1, rp, X, q1) //
+			.δ(q1, null, E, q0, E) //
+			.δ(q1, RP, X, q2) //
+			.δ(q2, null, X, q2) //
+			.δ(q2, null, E, q0, E) //
+			.δ(q0, LP, E, q3, E, X) //
+			.δ(q1, LP, X, q3, X) //
+			.δ(q3, lp, X, q3, X) //
+			.δ(q3, rp, X, q3, X) //
+			.δ(q3, LP, X, q3, X) //
+			.δ(q3, RP, X, q2) //
+			.q0(q0) //
+			.F(q0) //
+			.γ0(E) //
+			.go();
 
 	public static void main(String[] args) {
 		START().lp().lp().rp().rp().ACCEPT(); // (())

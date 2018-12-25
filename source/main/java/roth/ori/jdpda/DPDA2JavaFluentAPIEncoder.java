@@ -61,7 +61,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 		String JM = "public class " + name + "{";
 		JM += "public interface " + stuckName() + "{void STUCK();}" + "public interface " + terminatedName()
 				+ "{void TERMINATED();}" + "public interface " + acceptName() + "{void ACCEPT();}";
-		JM += "public static " + requestTypeName(M.q0(), Collections.singletonList(M.Z())) + "<";
+		JM += "public static " + requestTypeName(M.q0, Collections.singletonList(M.Z())) + "<";
 		List<String> typeVariables = new ArrayList<>();
 		for (Q q : M.Q())
 			typeVariables.add(M.isAccepting(q) ? acceptName() : terminatedName());
@@ -92,8 +92,8 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 			return stuckName();
 		}
 		if (consolidatedΔ.α.isEmpty())
-			return getType(consolidatedΔ.q_, null, rest);
-		String result = requestTypeName(consolidatedΔ.q_, consolidatedΔ.α) + "<";
+			return getType(consolidatedΔ.q$, null, rest);
+		String result = requestTypeName(consolidatedΔ.q$, consolidatedΔ.α) + "<";
 		List<String> typeVariables = new ArrayList<>();
 		for (Q q_ : M.Q())
 			typeVariables.add(getType(q_, null, rest));

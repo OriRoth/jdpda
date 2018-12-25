@@ -21,13 +21,13 @@ public class LAStar {
 	}
 
 	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
-			.delta(q0, a, X, q1, X) //
-			.delta(q1, a, X, q2, X) //
-			.delta(q2, a, X, q2, X) //
-			.setInitialState(q0) //
-			.setAccepting(q1, q2) //
-			.setInitialStackSymbol(X) //
-			.build();
+			.δ(q0, a, X, q1, X) //
+			.δ(q1, a, X, q2, X) //
+			.δ(q2, a, X, q2, X) //
+			.q0(q0) //
+			.F(q1, q2) //
+			.γ0(X) //
+			.go();
 
 	public static void main(String[] args) {
 		START().a().ACCEPT();
