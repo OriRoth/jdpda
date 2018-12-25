@@ -64,7 +64,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 
 	private String startMethod() {
 		return String.format("public static %s<%s> START(){return null;}", requestTypeName(M.q0, new Word<>(M.Z)),
-				M.Q().stream().map(q -> M.isAccepting(q) ? ACCEPT : TERMINATED).collect(Collectors.joining(",")));
+				M.Q().stream().map(q -> M.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(",")));
 	}
 
 	/**
