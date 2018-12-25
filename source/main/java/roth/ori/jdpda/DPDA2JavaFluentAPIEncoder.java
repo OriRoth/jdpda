@@ -137,9 +137,8 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 
 		@Override
 		public int hashCode() {
-			int result = 1;
-			result = result * 31 + q.hashCode();
-			result = result * 31 + α.hashCode();
+			int result = 1 * 31 + q.hashCode();
+			result = 31 * result + α.hashCode();
 			return result;
 		}
 
