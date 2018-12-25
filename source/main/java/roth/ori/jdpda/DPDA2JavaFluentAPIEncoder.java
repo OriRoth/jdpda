@@ -58,18 +58,13 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	}
 
 	private String terminationTypes() {
-		String string = "public interface " + STUCK + "{void STUCK();}";
-		String string2 = "public interface " + ACCEPT + "{void ACCEPT();}";
-		String string3 = "public interface " + TERMINATED
-						+ "{void TERMINATED();}";
-		return string + string3 + string2;
+		return "public interface " + STUCK + "{void STUCK();}" + "public interface " + TERMINATED
+				+ "{void TERMINATED();}" + "public interface " + ACCEPT + "{void ACCEPT();}";
 	}
 
 	private String startMethod() {
-		return String.format("public static %s<%s> START(){return null;}", //
-				requestTypeName(M.q0, new Word<>(M.Z)),
-				M.Q().stream().map(q -> M.isAccepting(q) ? ACCEPT : TERMINATED).collect(Collectors.joining(","))//
-				);
+		return String.format("public static %s<%s> START(){return null;}", requestTypeName(M.q0, new Word<>(M.Z)),
+				M.Q().stream().map(q -> M.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(",")));
 	}
 
 	/**
@@ -142,21 +137,19 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 
 		@Override
 		public int hashCode() {
-			int result = (1 * 31 + q.hashCode()) * 31 + α.hashCode();
+			int result = 1;
+			result = result * 31 + q.hashCode();
+			result = result * 31 + α.hashCode();
 			return result;
 		}
 
 		@Override
-		public boolean equals(Object o) {
-			if (o == this)
+		public boolean equals(Object obj) {
+			if (this == obj)
 				return true;
-			if (!(o instanceof TypeIdentifier))
+			if (!(obj instanceof TypeIdentifier))
 				return false;
-			TypeIdentifier<?, ?> other = (TypeIdentifier<?, ?>) o;
-			return equals(other);
-		}
-
-		private boolean equals(TypeIdentifier<?, ?> other) {
+			TypeIdentifier<?, ?> other = (TypeIdentifier<?, ?>) obj;
 			return q.equals(other.q) && α.equals(other.α);
 		}
 	}
