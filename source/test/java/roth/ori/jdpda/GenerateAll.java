@@ -12,6 +12,8 @@ import java.util.Map;
 import org.junit.Test;
 
 public class GenerateAll {
+	private static final String PATH = "./source/test/java/roth/ori/jdpda/generated/";
+
 	public static final String generatedOutputPath = System.getProperty("user.dir")
 			+ "/source/test/java/roth/ori/jdpda/generated/";
 
@@ -33,15 +35,18 @@ public class GenerateAll {
 	@Test
 	public void generateAll() throws IOException {
 		System.out.println("Current output directory is " + generatedOutputPath + ".");
-		Path directoryPath = Paths.get("./source/test/java/roth/ori/jdpda/generated/");
+		Path directoryPath = Paths.get(PATH);
 		if (!Files.exists(directoryPath)) {
 			Files.createDirectory(directoryPath);
 			System.out.println("Directory " + directoryPath + " created successfully.");
 		}
 		for (String fileName : files.keySet()) {
-			Files.write(
-					Paths.get("./source/test/java/roth/ori/jdpda/generated/" + fileName + ".java"),
-					Collections.singleton(files.get(fileName)), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+			Path filePath = Paths
+					.get(PATH + fileName + ".java");
+			if (Files.exists(filePath))
+				Files.delete(filePath);
+			Files.write(filePath, Collections.singleton(files.get(fileName)), StandardOpenOption.CREATE,
+					StandardOpenOption.WRITE);
 			System.out.println("File " + fileName + ".java written successfully.");
 		}
 	}

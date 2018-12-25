@@ -1,12 +1,9 @@
 package roth.ori.jdpda;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import roth.ori.jdpda.DPDA.δ;
 
@@ -25,6 +22,9 @@ import roth.ori.jdpda.DPDA.δ;
  * @param <Γ> stack symbols enum
  */
 public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
+	private static final String ACCEPT = "Accept";
+	private static final String TERMINATED = "Terminated";
+	private static final String STUCK = "Stuck";
 	/**
 	 * Class name.
 	 */
@@ -41,34 +41,35 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * Encoded types.
 	 */
 	private final Map<TypeIdentifier<Q, Γ>, String> typesEncodings;
-	/**
-	 * Types encoded.
-	 */
-	private final Set<TypeIdentifier<Q, Γ>> knownTypes;
 
 	public DPDA2JavaFluentAPIEncoder(String name, DPDA<Q, Σ, Γ> M) {
 		this.name = name;
 		this.M = M;
 		this.typesEncodings = new LinkedHashMap<>();
-		this.knownTypes = new LinkedHashSet<>();
-		this.encoding = getJM();
+		this.encoding = getJavaFluentAPI();
 	}
 
 	/**
 	 * @return class encoding
 	 */
-	private String getJM() {
-		String JM = "public class " + name + "{";
-		JM += "public interface " + stuckName() + "{void STUCK();}" + "public interface " + terminatedName()
-				+ "{void TERMINATED();}" + "public interface " + acceptName() + "{void ACCEPT();}";
-		JM += "public static " + requestTypeName(M.q0, Collections.singletonList(M.Z())) + "<";
-		List<String> typeVariables = new ArrayList<>();
-		for (Q q : M.Q())
-			typeVariables.add(M.isAccepting(q) ? acceptName() : terminatedName());
-		JM += String.join(",", typeVariables) + "> START() {return null;}";
-		for (String typeEncoding : typesEncodings.values())
-			JM += typeEncoding;
-		return JM + "}";
+	private String getJavaFluentAPI() {
+		return String.format("public class %s{%s%s%s}", name, terminationTypes(), startMethod(),
+				String.join("", typesEncodings.values()));
+	}
+
+	private String terminationTypes() {
+		String string = "public interface " + STUCK + "{void STUCK();}";
+		String string2 = "public interface " + ACCEPT + "{void ACCEPT();}";
+		String string3 = "public interface " + TERMINATED
+						+ "{void TERMINATED();}";
+		return string + string3 + string2;
+	}
+
+	private String startMethod() {
+		return String.format("public static %s<%s> START(){return null;}", //
+				requestTypeName(M.q0, new Word<>(M.Z)),
+				M.Q().stream().map(q -> M.isAccepting(q) ? ACCEPT : TERMINATED).collect(Collectors.joining(","))//
+				);
 	}
 
 	/**
@@ -80,24 +81,21 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * @param β current stack symbols to be pushed
 	 * @return next state type
 	 */
-	public String getType(Q q, Σ σ, List<Γ> β) {
+	public String getType(Q q, Σ σ, Word<Γ> β) {
 		if (β.isEmpty()) {
 			assert σ == null;
-			return jumpTypeVariableName(q);
+			return q.name();
 		}
-		δ<Q, Σ, Γ> consolidatedΔ = M.consolidate(q, σ, β.get(0));
-		List<Γ> rest = β.subList(1, β.size());
-		if (consolidatedΔ == null) {
+		δ<Q, Σ, Γ> consolidatedδ = M.consolidate(q, σ, β.top());
+		if (consolidatedδ == null) {
 			assert σ != null;
-			return stuckName();
+			return STUCK;
 		}
-		if (consolidatedΔ.α.isEmpty())
-			return getType(consolidatedΔ.q$, null, rest);
-		String result = requestTypeName(consolidatedΔ.q$, consolidatedΔ.α) + "<";
-		List<String> typeVariables = new ArrayList<>();
-		for (Q q_ : M.Q())
-			typeVariables.add(getType(q_, null, rest));
-		return result + String.join(",", typeVariables) + ">";
+		Word<Γ> rest = β.subList(1, β.size());
+		if (consolidatedδ.α.isEmpty())
+			return getType(consolidatedδ.q$, null, rest);
+		return String.format("%s<%s>", requestTypeName(consolidatedδ.q$, consolidatedδ.α),
+				M.Q().parallelStream().map(q$ -> getType(q$, null, rest)).collect(Collectors.joining(",")));
 	}
 
 	/**
@@ -108,50 +106,17 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * @param α current stack symbols to be pushed
 	 * @return type name
 	 */
-	private String requestTypeName(Q q, List<Γ> α) {
+	private String requestTypeName(Q q, Word<Γ> α) {
 		String className = pushTypeName(q, α);
 		TypeIdentifier<Q, Γ> identifier = new TypeIdentifier<>(q, α);
-		if (!knownTypes.add(identifier))
+		if (typesEncodings.containsKey(identifier))
 			return className;
-		String typeEncoding = "public interface " + className + "<";
-		List<String> typeVariables = new ArrayList<>();
-		for (Q q_ : M.Q())
-			typeVariables.add(jumpTypeVariableName(q_));
-		typeEncoding += String.join(",", typeVariables) + ">extends "
-				+ (M.isAccepting(q) ? acceptName() : terminatedName()) + "{";
-		for (Σ σ : M.Σ())
-			typeEncoding += getType(q, σ, α) + " " + σ.name() + "();";
-		typesEncodings.put(identifier, typeEncoding + "}");
+		typesEncodings.put(identifier, null); // Pending computation.
+		typesEncodings.put(identifier, String.format("public interface %s<%s>extends %s{%s}", className,
+				M.Q().stream().map(Enum::name).collect(Collectors.joining(",")), M.isAccepting(q) ? ACCEPT : TERMINATED,
+				M.Σ().stream().map(σ -> String.format("%s %s();", getType(q, σ, α), σ.name()))
+						.collect(Collectors.joining())));
 		return className;
-	}
-
-	/**
-	 * @return name of the "stuck" interface.
-	 */
-	private static String stuckName() {
-		return "Stuck";
-	}
-
-	/**
-	 * @return name of the "terminated" interface.
-	 */
-	private static String terminatedName() {
-		return "Terminated";
-	}
-
-	/**
-	 * @return name of the "accept" interface.
-	 */
-	private static String acceptName() {
-		return "Accept";
-	}
-
-	/**
-	 * @param q jump destination
-	 * @return jump type variable name
-	 */
-	private String jumpTypeVariableName(Q q) {
-		return "j_" + q.name();
 	}
 
 	/**
@@ -168,22 +133,31 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 */
 	private static class TypeIdentifier<Q extends Enum<Q>, Γ extends Enum<Γ>> {
 		private final Q q;
-		private final List<Γ> α;
+		private final Word<Γ> α;
 
-		public TypeIdentifier(Q q, List<Γ> α) {
+		public TypeIdentifier(Q q, Word<Γ> α) {
 			this.q = q;
-			this.α = new ArrayList<>(α);
+			this.α = new Word<>(α);
 		}
 
 		@Override
 		public int hashCode() {
-			return 31 * (q.hashCode() + 31) + α.hashCode();
+			int result = (1 * 31 + q.hashCode()) * 31 + α.hashCode();
+			return result;
 		}
 
 		@Override
 		public boolean equals(Object o) {
-			return o == this || (o instanceof TypeIdentifier && q.equals(((TypeIdentifier<?, ?>) o).q)
-					&& α.equals(((TypeIdentifier<?, ?>) o).α));
+			if (o == this)
+				return true;
+			if (!(o instanceof TypeIdentifier))
+				return false;
+			TypeIdentifier<?, ?> other = (TypeIdentifier<?, ?>) o;
+			return equals(other);
+		}
+
+		private boolean equals(TypeIdentifier<?, ?> other) {
+			return q.equals(other.q) && α.equals(other.α);
 		}
 	}
 }
