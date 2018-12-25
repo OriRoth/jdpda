@@ -27,7 +27,7 @@ public class LBalancedParentheses {
 			.δ(q1, rp, X, q1) //
 			.δ(q1, null, E, q0, E) //
 			.q0(q0) //
-			.F(q0) //
+			.q$(q0) //
 			.γ0(E) //
 			.go();
 

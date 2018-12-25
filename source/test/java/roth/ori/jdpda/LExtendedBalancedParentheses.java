@@ -32,7 +32,7 @@ public class LExtendedBalancedParentheses {
 			.δ(q2, null, X, q2) //
 			.δ(q2, null, $, q0, $) //
 			.q0(q0) //
-			.F(q0) //
+			.q$(q0) //
 			.γ0($) //
 			.go();
 

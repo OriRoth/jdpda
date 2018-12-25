@@ -25,7 +25,7 @@ public class LAStarB {
 			.δ(q0, b, X, q1) //
 			.δ(q1, null, X, q1) //
 			.q0(q0) //
-			.F(q1) //
+			.q$(q1) //
 			.γ0(X) //
 			.go();
 

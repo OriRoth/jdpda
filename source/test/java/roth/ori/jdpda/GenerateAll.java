@@ -14,9 +14,6 @@ import org.junit.Test;
 public class GenerateAll {
 	private static final String PATH = "./source/test/java/roth/ori/jdpda/generated/";
 
-	public static final String generatedOutputPath = System.getProperty("user.dir")
-			+ "/source/test/java/roth/ori/jdpda/generated/";
-
 	public static final Map<String, String> files = new HashMap<>();
 	public static final Object[][] APIClasses = { //
 			{ "LAPlusBBAPI", LAPlusBB.M }, //
@@ -28,21 +25,20 @@ public class GenerateAll {
 	};
 	static {
 		for (Object[] APIClass : APIClasses)
-			files.put((String) APIClass[0], "package roth.ori.jdpda.generated;"
+			files.put((String) APIClass[0], "package roth.ori.jdpda.generated;\n\n"
 					+ new DPDA2JavaFluentAPIEncoder<>((String) APIClass[0], (DPDA<?, ?, ?>) APIClass[1]).encoding);
 	}
 
 	@Test
 	public void generateAll() throws IOException {
-		System.out.println("Current output directory is " + generatedOutputPath + ".");
+		System.out.println("Current output directory is " + PATH + ".");
 		Path directoryPath = Paths.get(PATH);
 		if (!Files.exists(directoryPath)) {
 			Files.createDirectory(directoryPath);
 			System.out.println("Directory " + directoryPath + " created successfully.");
 		}
 		for (String fileName : files.keySet()) {
-			Path filePath = Paths
-					.get(PATH + fileName + ".java");
+			Path filePath = Paths.get(PATH + fileName + ".java");
 			if (Files.exists(filePath))
 				Files.delete(filePath);
 			Files.write(filePath, Collections.singleton(files.get(fileName)), StandardOpenOption.CREATE,

@@ -27,7 +27,7 @@ public class L1 {
 			.δ(q3, null, X, q4) //
 			.δ(q4, null, X, q4) //
 			.q0(q0) //
-			.F(q4) //
+			.q$(q4) //
 			.γ0(X) //
 			.go();
 

@@ -40,7 +40,7 @@ public class LLispParentheses {
 			.δ(q3, LP, X, q3, X) //
 			.δ(q3, RP, X, q2) //
 			.q0(q0) //
-			.F(q0) //
+			.q$(q0) //
 			.γ0(E) //
 			.go();
 

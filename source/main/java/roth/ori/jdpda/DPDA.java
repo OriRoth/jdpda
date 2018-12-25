@@ -1,10 +1,10 @@
 package roth.ori.jdpda;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Deterministic pushdown automaton (DPDA) supporting acceptance by final state.
@@ -35,7 +35,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	/**
 	 * Accepting states.
 	 */
-	public final Set<Q> F;
+	public final Set<Q> q$;
 	/**
 	 * Initial state.
 	 */
@@ -43,37 +43,37 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	/**
 	 * Initial stack symbol.
 	 */
-	public final Γ Z;
+	public final Γ γ0;
 
-	public DPDA(Class<Q> QClass, Class<Σ> ΣClass, Class<Γ> ΓClass, Set<δ<Q, Σ, Γ>> δs, Set<Q> F, Q q0, Γ Z) {
-		this.Q = QClass;
-		this.Σ = ΣClass;
-		this.Γ = ΓClass;
+	public DPDA(Class<Q> Q, Class<Σ> Σ, Class<Γ> Γ, Set<δ<Q, Σ, Γ>> δs, Set<Q> q$, Q q0, Γ Z) {
+		this.Q = Q;
+		this.Σ = Σ;
+		this.Γ = Γ;
 		this.δs = δs;
-		this.F = F;
+		this.q$ = q$;
 		this.q0 = q0;
-		this.Z = Z;
+		this.γ0 = Z;
 	}
 
 	/**
 	 * @return all automaton states.
 	 */
-	public Collection<Q> Q() {
-		return EnumSet.<Q>allOf(Q);
+	public Stream<Q> Q() {
+		return EnumSet.<Q>allOf(Q).stream();
 	}
 
 	/**
 	 * @return automaton alphabet.
 	 */
-	public Collection<Σ> Σ() {
-		return EnumSet.<Σ>allOf(Σ);
+	public Stream<Σ> Σ() {
+		return EnumSet.<Σ>allOf(Σ).stream();
 	}
 
 	/**
 	 * @return all stack symbols.
 	 */
-	public Collection<Γ> Γ() {
-		return EnumSet.<Γ>allOf(Γ);
+	public Stream<Γ> Γ() {
+		return EnumSet.<Γ>allOf(Γ).stream();
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	 * @return whether this is an accepting state
 	 */
 	public boolean isAccepting(Q q) {
-		return F.contains(q);
+		return q$.contains(q);
 	}
 
 	/**
@@ -145,18 +145,18 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	 * it assumes it is deterministic and cannot loop infinitely.
 	 */
 	public static class Builder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
-		private final Class<Q> QClass;
-		private final Class<Σ> ΣClass;
-		private final Class<Γ> ΓClass;
+		private final Class<Q> Q;
+		private final Class<Σ> Σ;
+		private final Class<Γ> Γ;
 		private final Set<δ<Q, Σ, Γ>> δs;
 		private final Set<Q> F;
 		private Q q0;
 		private Γ γ0;
 
-		public Builder(Class<Q> QClass, Class<Σ> ΣClass, Class<Γ> ΓClass) {
-			this.QClass = QClass;
-			this.ΣClass = ΣClass;
-			this.ΓClass = ΓClass;
+		public Builder(Class<Q> Q, Class<Σ> Σ, Class<Γ> Γ) {
+			this.Q = Q;
+			this.Σ = Σ;
+			this.Γ = Γ;
 			this.δs = new LinkedHashSet<>();
 			this.F = new LinkedHashSet<>();
 		}
@@ -166,7 +166,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 			return this;
 		}
 
-		public Builder<Q, Σ, Γ> F(@SuppressWarnings("unchecked") Q... qs) {
+		public Builder<Q, Σ, Γ> q$(@SuppressWarnings("unchecked") Q... qs) {
 			Collections.addAll(F, qs);
 			return this;
 		}
@@ -184,7 +184,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 		public DPDA<Q, Σ, Γ> go() {
 			assert q0 != null;
 			assert γ0 != null;
-			return new DPDA<>(QClass, ΣClass, ΓClass, δs, F, q0, γ0);
+			return new DPDA<>(Q, Σ, Γ, δs, F, q0, γ0);
 		}
 	}
 

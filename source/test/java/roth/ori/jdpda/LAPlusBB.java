@@ -31,7 +31,7 @@ public class LAPlusBB {
 			.δ(q2, null, X, q2) //
 			.δ(q2, b, Y, q3) //
 			.q0(q0) //
-			.F(q3) //
+			.q$(q3) //
 			.γ0(X) //
 			.go();
 	

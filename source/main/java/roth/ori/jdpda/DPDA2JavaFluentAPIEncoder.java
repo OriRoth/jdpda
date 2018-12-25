@@ -40,12 +40,11 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	/**
 	 * Encoded types.
 	 */
-	private final Map<TypeIdentifier<Q, Γ>, String> typesEncodings;
+	private final Map<TypeIdentifier<Q, Γ>, String> types = new LinkedHashMap<>();
 
 	public DPDA2JavaFluentAPIEncoder(String name, DPDA<Q, Σ, Γ> M) {
 		this.name = name;
 		this.M = M;
-		this.typesEncodings = new LinkedHashMap<>();
 		this.encoding = getJavaFluentAPI();
 	}
 
@@ -53,18 +52,31 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * @return class encoding
 	 */
 	private String getJavaFluentAPI() {
-		return String.format("public class %s{%s%s%s}", name, terminationTypes(), startMethod(),
-				String.join("", typesEncodings.values()));
+		return String.format("public class %s {\n%s%s\n%s\n}", //
+				name, //
+				endInteraces(), //
+				startMethod(), //
+				String.join("\n", types.values())//
+		);
 	}
 
-	private String terminationTypes() {
-		return "public interface " + STUCK + "{void STUCK();}" + "public interface " + TERMINATED
-				+ "{void TERMINATED();}" + "public interface " + ACCEPT + "{void ACCEPT();}";
+	private String endInteraces() {
+		return String.format("\t%s\n\t%s\n\t%s\n", //
+				makeInterface(STUCK), //
+				makeInterface(TERMINATED), //
+				makeInterface(ACCEPT) //
+		);
+	}
+
+	private static String makeInterface(String name) {
+		return String.format("public interface %s { void %s(); }", name, name.toUpperCase());
 	}
 
 	private String startMethod() {
-		return String.format("public static %s<%s> START(){return null;}", requestTypeName(M.q0, new Word<>(M.Z)),
-				M.Q().stream().map(q -> M.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(",")));
+		return "\t" + String.format("public static %s<%s> START() { return null; }\n", //
+				requestTypeName(M.q0, new Word<>(M.γ0)), //
+				M.Q().map(q -> M.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(","))//
+		);
 	}
 
 	/**
@@ -79,7 +91,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	public String getType(Q q, Σ σ, Word<Γ> β) {
 		if (β.isEmpty()) {
 			assert σ == null;
-			return q.name();
+			return q + "";
 		}
 		δ<Q, Σ, Γ> consolidatedδ = M.consolidate(q, σ, β.top());
 		if (consolidatedδ == null) {
@@ -90,7 +102,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 		if (consolidatedδ.α.isEmpty())
 			return getType(consolidatedδ.q$, null, rest);
 		return String.format("%s<%s>", requestTypeName(consolidatedδ.q$, consolidatedδ.α),
-				M.Q().parallelStream().map(q$ -> getType(q$, null, rest)).collect(Collectors.joining(",")));
+				M.Q().map(q$ -> getType(q$, null, rest)).collect(Collectors.joining(", ")));
 	}
 
 	/**
@@ -104,13 +116,13 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	private String requestTypeName(Q q, Word<Γ> α) {
 		String className = pushTypeName(q, α);
 		TypeIdentifier<Q, Γ> identifier = new TypeIdentifier<>(q, α);
-		if (typesEncodings.containsKey(identifier))
+		if (types.containsKey(identifier))
 			return className;
-		typesEncodings.put(identifier, null); // Pending computation.
-		typesEncodings.put(identifier, String.format("public interface %s<%s>extends %s{%s}", className,
-				M.Q().stream().map(Enum::name).collect(Collectors.joining(",")), M.isAccepting(q) ? ACCEPT : TERMINATED,
-				M.Σ().stream().map(σ -> String.format("%s %s();", getType(q, σ, α), σ.name()))
-						.collect(Collectors.joining())));
+		types.put(identifier, null); // Pending computation.
+		types.put(identifier, String.format("\tpublic interface %s<%s> extends %s {\n%s\t}", //
+				className,
+				M.Q().map(Enum::name).collect(Collectors.joining(", ")), M.isAccepting(q) ? ACCEPT : TERMINATED,
+				M.Σ().map(σ -> String.format("\t\t%s %s();\n", getType(q, σ, α), σ)).collect(Collectors.joining())));
 		return className;
 	}
 
@@ -120,7 +132,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * @return type name
 	 */
 	private String pushTypeName(Q q, List<Γ> α) {
-		return q.name() + "_" + α.stream().map(symbol -> symbol.name()).reduce("", String::concat);
+		return q + "_" + α.stream().map(Enum::name).collect(Collectors.joining("_"));
 	}
 
 	/**
@@ -137,19 +149,20 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 
 		@Override
 		public int hashCode() {
-			int result = 1 * 31 + q.hashCode();
-			result = 31 * result + α.hashCode();
-			return result;
+			return α.hashCode() + 31 * (q.hashCode());
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
+		public boolean equals(Object o) {
+			if (o == this)
 				return true;
-			if (!(obj instanceof TypeIdentifier))
+			if (!(o instanceof TypeIdentifier))
 				return false;
-			TypeIdentifier<?, ?> other = (TypeIdentifier<?, ?>) obj;
-			return q.equals(other.q) && α.equals(other.α);
+			return equals((TypeIdentifier<?, ?>) o);
+		}
+
+		private boolean equals(TypeIdentifier<?, ?> obj2) {
+			return q.equals(obj2.q) && α.equals(obj2.α);
 		}
 	}
 }
