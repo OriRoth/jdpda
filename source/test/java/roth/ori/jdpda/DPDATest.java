@@ -17,17 +17,16 @@ public class DPDATest {
 		State q = State.q0;
 		Word<StackSymbol> S = new Word<>(StackSymbol.E);
 		for (Letter σ : Arrays.asList(lp, LP, rp, rp, rp, lp, RP, lp, rp)) {
-			δ<State, Letter, StackSymbol> δ = M.δ(q, σ, S.pop());
+			δ<State, Letter, StackSymbol> δ = M.δ(q, σ, S.top());
 			assert δ != null : "Computation terminated upon consuming " + σ;
 			q = δ.q$;
-			S.push(δ.α);
+			S.pop().push(δ.α);
 			for (;;) {
 				δ = M.δ(q, S.top());
 				if (δ == null)
 					break;
-				S.pop();
 				q = δ.q$;
-				S.push(δ.α);
+				S.pop().push(δ.α);
 			}
 		}
 	}

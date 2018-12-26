@@ -40,15 +40,13 @@ public class Word<T extends Enum<T>> extends ArrayList<T> {
 		addAll(0, w);
 	}
 
-	public T pop() {
-		return remove(0);
+	public Word<T> pop() {
+		 remove(0);
+		 return this;
 	}
 
 	@Override
 	public Word<T> subList(int fromIndex, int toIndex) {
-		Word<T> $ = new Word<>();
-		for (int i = fromIndex; i < toIndex; ++i)
-			$.add(get(i));
-		return $;
+		return new Word<>(this).pop();
 	}
 }

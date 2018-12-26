@@ -92,21 +92,19 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * @param α current stack symbols to be pushed
 	 * @return next state type
 	 */
-	public String getType(Q q, Σ σ, Word<Γ> α) {
+	public String consolidatedTransitionType(Q q, Σ σ, Word<Γ> α) {
 		if (α.isEmpty()) {
 			assert σ == null;
 			return q + "";
 		}
 		δ<Q, Σ, Γ> δ = M.consolidate(q, σ, α.top());
-		if (δ == null) {
-			assert σ != null;
+		if (δ == null) // assert σ != null;
 			return STUCK;
-		}
-		Word<Γ> rest = α.subList(1, α.size());
+		Word<Γ> rest = new Word<>(α).pop();
 		if (δ.α.isEmpty())
-			return getType(δ.q$, null, rest);
+			return consolidatedTransitionType(δ.q$, null, rest);
 		return String.format("%s<%s>", //
-				requestTypeName(δ.q$, δ.α), M.Q().map(q$ -> getType(q$, null, rest)).collect(Collectors.joining(", "))//
+				requestTypeName(δ.q$, δ.α), M.Q().map(q$ -> consolidatedTransitionType(q$, null, rest)).collect(Collectors.joining(", "))//
 		);
 	}
 
@@ -132,7 +130,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 				$, //
 				M.Q().map(Enum::name).collect(Collectors.joining(", ")), //
 				M.isAccepting(q) ? ACCEPT : TERMINATED, //
-				M.Σ().map(σ -> String.format("\t\t%s %s();\n", getType(q, σ, α), σ)).reduce("", String::concat)//
+				M.Σ().map(σ -> String.format("\t\t%s %s();\n", consolidatedTransitionType(q, σ, α), σ)).reduce("", String::concat)//
 		);
 	}
 
