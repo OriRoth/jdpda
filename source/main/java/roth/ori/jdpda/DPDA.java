@@ -24,7 +24,8 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	final Q q0;
 	final Γ γ0;
 
-	public DPDA(final Class<Q> Q, final Class<Σ> Σ, final Class<Γ> Γ, final Set<δ<Q, Σ, Γ>> δs, final Set<Q> q$, final Q q0, final Γ Z) {
+	public DPDA(final Class<Q> Q, final Class<Σ> Σ, final Class<Γ> Γ, final Set<δ<Q, Σ, Γ>> δs, final Set<Q> q$,
+			final Q q0, final Γ Z) {
 		this.Q = Q;
 		this.Σ = Σ;
 		this.Γ = Γ;
@@ -34,23 +35,14 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 		this.γ0 = Z;
 	}
 
-	/**
-	 * @return all automaton states.
-	 */
 	public Stream<Q> Q() {
 		return EnumSet.<Q>allOf(Q).stream();
 	}
 
-	/**
-	 * @return automaton alphabet.
-	 */
 	public Stream<Σ> Σ() {
 		return EnumSet.<Σ>allOf(Σ).stream();
 	}
 
-	/**
-	 * @return all stack symbols.
-	 */
 	public Stream<Γ> Γ() {
 		return EnumSet.<Γ>allOf(Γ).stream();
 	}
@@ -137,7 +129,8 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 			this.F = new LinkedHashSet<>();
 		}
 
-		public Builder<Q, Σ, Γ> δ(final Q q, final Σ σ, final Γ γ, final Q q$, @SuppressWarnings("unchecked") final Γ... α) {
+		public Builder<Q, Σ, Γ> δ(final Q q, final Σ σ, final Γ γ, final Q q$,
+				@SuppressWarnings("unchecked") final Γ... α) {
 			δs.add(new δ<>(q, σ, γ, q$, new Word<>(α)));
 			return this;
 		}
@@ -184,7 +177,6 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 			this.α = α == null ? null : new Word<>(α);
 		}
 
-
 		/**
 		 * @param currentq current state
 		 * @param currentσ current input letter
@@ -198,7 +190,10 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 
 		@Override
 		public int hashCode() {
-			return 31 * (q$.hashCode() + 31 * (γ.hashCode() + 31 * (31 * (q.hashCode() + 31) + (σ == null ? 1 : σ.hashCode())))) + α.hashCode();
+			return 31
+					* (q$.hashCode()
+							+ 31 * (γ.hashCode() + 31 * (31 * (q.hashCode() + 31) + (σ == null ? 1 : σ.hashCode()))))
+					+ α.hashCode();
 		}
 
 		@Override

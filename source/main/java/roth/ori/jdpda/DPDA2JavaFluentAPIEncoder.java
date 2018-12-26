@@ -42,7 +42,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 */
 	private final Map<String, String> types = new LinkedHashMap<>();
 
-	public DPDA2JavaFluentAPIEncoder(String name, DPDA<Q, Σ, Γ> M) {
+	public DPDA2JavaFluentAPIEncoder(final String name, final DPDA<Q, Σ, Γ> M) {
 		this.name = name;
 		this.M = M;
 		this.encoding = getJavaFluentAPI();
@@ -68,19 +68,15 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 		);
 	}
 
-	private static String makeInterface(String name) {
+	private static String makeInterface(final String name) {
 		return String.format("public interface %s { void %s(); }", name, name.toUpperCase());
 	}
 
 	private String startMethod() {
 		return "\t" + String.format("public static %s<%s> START() { return null; }\n", //
 				requestTypeName(M.q0, new Word<>(M.γ0)), //
-				M.Q().map(q -> acceptStatus(q)).collect(Collectors.joining(","))//
+				M.Q().map(q -> M.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(","))//
 		);
-	}
-
-	private String acceptStatus(Q q) {
-		return M.isAccepting(q) ? ACCEPT : STUCK;
 	}
 
 	/**
@@ -92,15 +88,15 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * @param α current stack symbols to be pushed
 	 * @return next state type
 	 */
-	public String consolidatedTransitionType(Q q, Σ σ, Word<Γ> α) {
+	public String consolidatedTransitionType(final Q q, final Σ σ, final Word<Γ> α) {
 		if (α.isEmpty()) {
 			assert σ == null;
 			return q + "";
 		}
-		δ<Q, Σ, Γ> δ = M.consolidate(q, σ, α.top());
+		final δ<Q, Σ, Γ> δ = M.consolidate(q, σ, α.top());
 		if (δ == null) // assert σ != null;
 			return STUCK;
-		Word<Γ> rest = new Word<>(α).pop();
+		final Word<Γ> rest = new Word<>(α).pop();
 		if (δ.α.isEmpty())
 			return consolidatedTransitionType(δ.q$, null, rest);
 		return String.format("%s<%s>", //
@@ -116,8 +112,8 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * @param α current stack symbols to be pushed
 	 * @return type name
 	 */
-	private String requestTypeName(Q q, Word<Γ> α) {
-		String $ = pushTypeName(q, α);
+	private String requestTypeName(final Q q, final Word<Γ> α) {
+		final String $ = pushTypeName(q, α);
 		if (types.containsKey($))
 			return $;
 		types.put($, null); // Pending computation.
@@ -125,7 +121,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 		return $;
 	}
 
-	private String encodeType(Q q, Word<Γ> α, String $) {
+	private String encodeType(final Q q, final Word<Γ> α, final String $) {
 		return String.format("\tpublic interface %s<%s> extends %s {\n%s\t}", //
 				$, //
 				M.Q().map(Enum::name).collect(Collectors.joining(", ")), //
@@ -139,7 +135,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * @param α current stack symbols to be pushed
 	 * @return type name
 	 */
-	private String pushTypeName(Q q, List<Γ> α) {
+	private String pushTypeName(final Q q, final List<Γ> α) {
 		return q + "_" + α.stream().map(Enum::name).collect(Collectors.joining("_"));
 	}
 }
