@@ -1,4 +1,4 @@
-package roth.ori.jdpda;
+package jdpda;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -25,14 +25,14 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	final Γ γ0;
 
 	public DPDA(final Class<Q> Q, final Class<Σ> Σ, final Class<Γ> Γ, final Set<δ<Q, Σ, Γ>> δs, final Set<Q> q$,
-			final Q q0, final Γ Z) {
+			final Q q0, final Γ γ0) {
 		this.Q = Q;
 		this.Σ = Σ;
 		this.Γ = Γ;
 		this.δs = δs;
 		this.q$ = q$;
 		this.q0 = q0;
-		this.γ0 = Z;
+		this.γ0 = γ0;
 	}
 
 	public Stream<Q> Q() {
@@ -135,7 +135,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 			return this;
 		}
 
-		public Builder<Q, Σ, Γ> q$(@SuppressWarnings("unchecked") final Q... qs) {
+		public Builder<Q, Σ, Γ> F(@SuppressWarnings("unchecked") final Q... qs) {
 			Collections.addAll(F, qs);
 			return this;
 		}

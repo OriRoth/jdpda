@@ -1,4 +1,4 @@
-package roth.ori.jdpda;
+package jdpda;
 
 import java.util.ArrayList;
 

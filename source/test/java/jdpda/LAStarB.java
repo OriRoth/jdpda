@@ -1,11 +1,13 @@
-package roth.ori.jdpda;
+package jdpda;
 
-import static roth.ori.jdpda.LAStarB.Letter.a;
-import static roth.ori.jdpda.LAStarB.Letter.b;
-import static roth.ori.jdpda.LAStarB.StackSymbol.X;
-import static roth.ori.jdpda.LAStarB.State.q0;
-import static roth.ori.jdpda.LAStarB.State.q1;
-import static roth.ori.jdpda.generated.LAStarBAPI.START;
+import static jdpda.LAStarB.Letter.a;
+import static jdpda.LAStarB.Letter.b;
+import static jdpda.LAStarB.StackSymbol.X;
+import static jdpda.LAStarB.State.q0;
+import static jdpda.LAStarB.State.q1;
+import static jdpda.generated.LAStarBAPI.START;
+
+import jdpda.DPDA;
 
 public class LAStarB {
 	enum State {
@@ -25,7 +27,7 @@ public class LAStarB {
 			.δ(q0, b, X, q1) //
 			.δ(q1, null, X, q1) //
 			.q0(q0) //
-			.q$(q1) //
+			.F(q1) //
 			.γ0(X) //
 			.go();
 

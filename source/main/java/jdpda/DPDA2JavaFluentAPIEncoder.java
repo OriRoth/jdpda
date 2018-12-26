@@ -1,11 +1,11 @@
-package roth.ori.jdpda;
+package jdpda;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import roth.ori.jdpda.DPDA.δ;
+import jdpda.DPDA.δ;
 
 /**
  * Encodes deterministic pushdown automaton ({@link DPDA}) as a Java class; A
@@ -32,7 +32,7 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	/**
 	 * {@link DPDA} origin.
 	 */
-	public final DPDA<Q, Σ, Γ> M;
+	public final DPDA<Q, Σ, Γ> dpda;
 	/**
 	 * Class encoding.
 	 */
@@ -42,16 +42,16 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 */
 	private final Map<String, String> types = new LinkedHashMap<>();
 
-	public DPDA2JavaFluentAPIEncoder(final String name, final DPDA<Q, Σ, Γ> M) {
+	public DPDA2JavaFluentAPIEncoder(final String name, final DPDA<Q, Σ, Γ> dpda) {
 		this.name = name;
-		this.M = M;
-		this.encoding = getJavaFluentAPI();
+		this.dpda = dpda;
+		this.encoding = encoding();
 	}
 
 	/**
 	 * @return class encoding
 	 */
-	private String getJavaFluentAPI() {
+	private String encoding() {
 		return String.format("public class %s {\n%s%s\n%s\n}", //
 				name, //
 				endInteraces(), //
@@ -74,8 +74,8 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 
 	private String startMethod() {
 		return "\t" + String.format("public static %s<%s> START() { return null; }\n", //
-				requestTypeName(M.q0, new Word<>(M.γ0)), //
-				M.Q().map(q -> M.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(","))//
+				requestTypeName(dpda.q0, new Word<>(dpda.γ0)), //
+				dpda.Q().map(q -> dpda.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(", "))//
 		);
 	}
 
@@ -93,14 +93,14 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 			assert σ == null;
 			return q + "";
 		}
-		final δ<Q, Σ, Γ> δ = M.consolidate(q, σ, α.top());
+		final δ<Q, Σ, Γ> δ = dpda.consolidate(q, σ, α.top());
 		if (δ == null) // assert σ != null;
 			return STUCK;
 		final Word<Γ> rest = new Word<>(α).pop();
 		if (δ.α.isEmpty())
 			return consolidatedTransitionType(δ.q$, null, rest);
 		return String.format("%s<%s>", //
-				requestTypeName(δ.q$, δ.α), M.Q().map(q$ -> consolidatedTransitionType(q$, null, rest)).collect(Collectors.joining(", "))//
+				requestTypeName(δ.q$, δ.α), dpda.Q().map(q$ -> consolidatedTransitionType(q$, null, rest)).collect(Collectors.joining(", "))//
 		);
 	}
 
@@ -121,12 +121,12 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 		return $;
 	}
 
-	private String encodeType(final Q q, final Word<Γ> α, final String $) {
+	private String encodeType(final Q q, final Word<Γ> α, final String name) {
 		return String.format("\tpublic interface %s<%s> extends %s {\n%s\t}", //
-				$, //
-				M.Q().map(Enum::name).collect(Collectors.joining(", ")), //
-				M.isAccepting(q) ? ACCEPT : TERMINATED, //
-				M.Σ().map(σ -> String.format("\t\t%s %s();\n", consolidatedTransitionType(q, σ, α), σ)).reduce("", String::concat)//
+				name, //
+				dpda.Q().map(Enum::name).collect(Collectors.joining(", ")), //
+				dpda.isAccepting(q) ? ACCEPT : TERMINATED, //
+				dpda.Σ().map(σ -> String.format("\t\t%s %s();\n", consolidatedTransitionType(q, σ, α), σ)).reduce("", String::concat)//
 		);
 	}
 

@@ -1,12 +1,15 @@
-package roth.ori.jdpda;
+package jdpda;
 
 import org.junit.Test;
 
-import roth.ori.jdpda.DPDA.δ;
-import roth.ori.jdpda.LLispParentheses.Letter;
-import roth.ori.jdpda.LLispParentheses.StackSymbol;
-import roth.ori.jdpda.LLispParentheses.State;
-import static roth.ori.jdpda.LLispParentheses.Letter.*;
+import jdpda.DPDA;
+import jdpda.Word;
+import jdpda.DPDA.δ;
+import jdpda.LLispParentheses.Letter;
+import jdpda.LLispParentheses.StackSymbol;
+import jdpda.LLispParentheses.State;
+
+import static jdpda.LLispParentheses.Letter.*;
 
 import java.util.Arrays;
 
@@ -16,7 +19,7 @@ public class DPDATest {
 		DPDA<State, Letter, StackSymbol> M = LLispParentheses.M;
 		State q = State.q0;
 		Word<StackSymbol> S = new Word<>(StackSymbol.E);
-		for (Letter σ : Arrays.asList(lp, LP, rp, rp, rp, lp, RP, lp, rp)) {
+		for (Letter σ : Arrays.asList(c, Ↄ, ↄ, ↄ, ↄ, c, Ↄ, c, ↄ)) {
 			δ<State, Letter, StackSymbol> δ = M.δ(q, σ, S.top());
 			assert δ != null : "Computation terminated upon consuming " + σ;
 			q = δ.q$;

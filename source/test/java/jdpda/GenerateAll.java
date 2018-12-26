@@ -1,4 +1,4 @@
-package roth.ori.jdpda;
+package jdpda;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,8 +11,11 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import jdpda.DPDA;
+import jdpda.DPDA2JavaFluentAPIEncoder;
+
 public class GenerateAll {
-	private static final String PATH = "./source/test/java/roth/ori/jdpda/generated/";
+	private static final String PATH = "./source/test/java/jdpda/generated/";
 
 	public static final Map<String, String> files = new HashMap<>();
 	public static final Object[][] APIClasses = { //
@@ -25,7 +28,7 @@ public class GenerateAll {
 	};
 	static {
 		for (Object[] APIClass : APIClasses)
-			files.put((String) APIClass[0], "package roth.ori.jdpda.generated;\n\n"
+			files.put((String) APIClass[0], "package jdpda.generated;\n\n"
 					+ new DPDA2JavaFluentAPIEncoder<>((String) APIClass[0], (DPDA<?, ?, ?>) APIClass[1]).encoding);
 	}
 

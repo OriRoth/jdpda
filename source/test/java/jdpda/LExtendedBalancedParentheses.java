@@ -1,14 +1,16 @@
-package roth.ori.jdpda;
+package jdpda;
 
-import static roth.ori.jdpda.LExtendedBalancedParentheses.Letter.RP;
-import static roth.ori.jdpda.LExtendedBalancedParentheses.Letter.lp;
-import static roth.ori.jdpda.LExtendedBalancedParentheses.Letter.rp;
-import static roth.ori.jdpda.LExtendedBalancedParentheses.StackSymbol.$;
-import static roth.ori.jdpda.LExtendedBalancedParentheses.StackSymbol.X;
-import static roth.ori.jdpda.LExtendedBalancedParentheses.State.q0;
-import static roth.ori.jdpda.LExtendedBalancedParentheses.State.q1;
-import static roth.ori.jdpda.LExtendedBalancedParentheses.State.q2;
-import static roth.ori.jdpda.generated.LExtendedBalancedParenthesesAPI.START;
+import static jdpda.LExtendedBalancedParentheses.Letter.RP;
+import static jdpda.LExtendedBalancedParentheses.Letter.lp;
+import static jdpda.LExtendedBalancedParentheses.Letter.rp;
+import static jdpda.LExtendedBalancedParentheses.StackSymbol.$;
+import static jdpda.LExtendedBalancedParentheses.StackSymbol.X;
+import static jdpda.LExtendedBalancedParentheses.State.q0;
+import static jdpda.LExtendedBalancedParentheses.State.q1;
+import static jdpda.LExtendedBalancedParentheses.State.q2;
+import static jdpda.generated.LExtendedBalancedParenthesesAPI.START;
+
+import jdpda.DPDA;
 
 public class LExtendedBalancedParentheses {
 	enum State {
@@ -32,7 +34,7 @@ public class LExtendedBalancedParentheses {
 			.δ(q2, null, X, q2) //
 			.δ(q2, null, $, q0, $) //
 			.q0(q0) //
-			.q$(q0) //
+			.F(q0) //
 			.γ0($) //
 			.go();
 
