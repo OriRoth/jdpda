@@ -25,21 +25,9 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	private static final String ACCEPT = "Accept";
 	private static final String TERMINATED = "Terminated";
 	private static final String STUCK = "Stuck";
-	/**
-	 * Class name.
-	 */
-	public final String name;
-	/**
-	 * {@link DPDA} origin.
-	 */
-	public final DPDA<Q, Σ, Γ> dpda;
-	/**
-	 * Class encoding.
-	 */
-	public final String encoding;
-	/**
-	 * Encoded types.
-	 */
+	final String name;
+	final DPDA<Q, Σ, Γ> dpda;
+	final String encoding;
 	private final Map<String, String> types = new LinkedHashMap<>();
 
 	public DPDA2JavaFluentAPIEncoder(final String name, final DPDA<Q, Σ, Γ> dpda) {
@@ -48,9 +36,6 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 		this.encoding = encoding();
 	}
 
-	/**
-	 * @return class encoding
-	 */
 	private String encoding() {
 		return String.format("public class %s {\n%s%s\n%s\n}", //
 				name, //

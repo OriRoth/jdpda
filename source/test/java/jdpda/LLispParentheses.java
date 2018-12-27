@@ -6,16 +6,16 @@ import static jdpda.LLispParentheses.Letter.c;
 import static jdpda.LLispParentheses.Letter.ↄ;
 import static jdpda.LLispParentheses.StackSymbol.E;
 import static jdpda.LLispParentheses.StackSymbol.X;
-import static jdpda.LLispParentheses.State.q0;
-import static jdpda.LLispParentheses.State.q1;
-import static jdpda.LLispParentheses.State.q2;
-import static jdpda.LLispParentheses.State.q3;
+import static jdpda.LLispParentheses.Q.q0;
+import static jdpda.LLispParentheses.Q.q1;
+import static jdpda.LLispParentheses.Q.q2;
+import static jdpda.LLispParentheses.Q.q3;
 import static jdpda.generated.LLispParenthesesAPI.START;
 
 import jdpda.DPDA;
 
 public class LLispParentheses {
-	enum State {
+	enum Q {
 		q0, q1, q2, q3
 	}
 
@@ -27,7 +27,7 @@ public class LLispParentheses {
 		E, X
 	}
 
-	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
+	public static DPDA<Q, Letter, StackSymbol> M = new DPDA.Builder<>(Q.class, Letter.class, StackSymbol.class) //
 			.δ(q0, c, E, q1, E, X) //
 			.δ(q1, c, X, q1, X, X) //
 			.δ(q1, ↄ, X, q1) //
