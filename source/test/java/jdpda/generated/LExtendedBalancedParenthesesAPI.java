@@ -4,6 +4,7 @@ public class LExtendedBalancedParenthesesAPI {
 	public interface Stuck { void STUCK(); }
 	public interface Terminated { void TERMINATED(); }
 	public interface Accept { void ACCEPT(); }
+
 	public static q0_$<Accept, Stuck, Stuck> START() { return null; }
 
 	public interface q0_$<q0, q1, q2> extends Accept {

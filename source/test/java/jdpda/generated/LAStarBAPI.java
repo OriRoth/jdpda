@@ -4,6 +4,7 @@ public class LAStarBAPI {
 	public interface Stuck { void STUCK(); }
 	public interface Terminated { void TERMINATED(); }
 	public interface Accept { void ACCEPT(); }
+
 	public static q0_X<Stuck, Accept> START() { return null; }
 
 	public interface q0_X<q0, q1> extends Terminated {
