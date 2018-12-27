@@ -5,22 +5,22 @@ import org.junit.Test;
 import jdpda.DPDA;
 import jdpda.Word;
 import jdpda.DPDA.δ;
-import jdpda.LLispParentheses.Letter;
-import jdpda.LLispParentheses.StackSymbol;
-import jdpda.LLispParentheses.Q;
+import jdpda.LExtendedBalancedParentheses.Letter;
+import jdpda.LExtendedBalancedParentheses.StackSymbol;
+import jdpda.LExtendedBalancedParentheses.State;
 
-import static jdpda.LLispParentheses.Letter.*;
+import static jdpda.LExtendedBalancedParentheses.Letter.*;
 
 import java.util.Arrays;
 
 public class DPDATest {
 	@Test
 	public void lispParenthesisSamplesTest() {
-		DPDA<Q, Letter, StackSymbol> M = LLispParentheses.M;
-		Q q = Q.q0;
-		Word<StackSymbol> S = new Word<>(StackSymbol.E);
-		for (Letter σ : Arrays.asList(c, Ↄ, ↄ, ↄ, ↄ, c, Ↄ, c, ↄ)) {
-			δ<Q, Letter, StackSymbol> δ = M.δ(q, σ, S.top());
+		DPDA<State, Letter, StackSymbol> M = LExtendedBalancedParentheses.M;
+		State q = State.q0;
+		Word<StackSymbol> S = new Word<>(StackSymbol.$);
+		for (Letter σ : Arrays.asList(c, Ↄ, c, c, c, c, Ↄ, c, ↄ)) {
+			δ<State, Letter, StackSymbol> δ = M.δ(q, σ, S.top());
 			assert δ != null : "Computation terminated upon consuming " + σ;
 			q = δ.q$;
 			S.pop().push(δ.α);
