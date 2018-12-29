@@ -12,7 +12,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import jdpda.DPDA;
-import jdpda.DPDA2JavaFluentAPIEncoder;
+import jdpda.Encoder;
 
 public class GenerateAll {
 	private static final String PATH = "./source/test/java/jdpda/generated/";
@@ -29,7 +29,7 @@ public class GenerateAll {
 	static {
 		for (Object[] APIClass : APIClasses)
 			files.put((String) APIClass[0], "package jdpda.generated;\n\n"
-					+ new DPDA2JavaFluentAPIEncoder<>((String) APIClass[0], (DPDA<?, ?, ?>) APIClass[1]).encoding);
+					+ new Encoder<>((String) APIClass[0], (DPDA<?, ?, ?>) APIClass[1]).encoding);
 	}
 
 	@Test

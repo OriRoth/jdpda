@@ -32,8 +32,8 @@ public class LAStar {
 			.go();
 
 	public static void main(String[] args) {
-		START().a().ACCEPT();
-		START().a().a().ACCEPT();
-		START().TERMINATED();
+		START().a().$();
+		START().a().a().$();
+		START().¢();
 	}
 }

@@ -47,10 +47,10 @@ public class LLispParentheses {
 			.go();
 
 	public static void main(String[] args) {
-		START().c().c().ↄ().ↄ().ACCEPT(); // (())
-		START().c().c().ↄ().ↄ().ↄ().STUCK(); // (()))
-		START().c().C().ↄ().ↄ().ↄ().c().Ↄ().c().ↄ().ACCEPT(); // ([)))(]()
-		START().c().C().ↄ().ↄ().TERMINATED(); // ([))
-		START().C().c().ↄ().ↄ().Ↄ().C().C().Ↄ().ACCEPT(); // [())][[]
+		START().c().c().ↄ().ↄ().$(); // (())
+		START().c().c().ↄ().ↄ().ↄ().ø(); // (()))
+		START().c().C().ↄ().ↄ().ↄ().c().Ↄ().c().ↄ().$(); // ([)))(]()
+		START().c().C().ↄ().ↄ().¢(); // ([))
+		START().C().c().ↄ().ↄ().Ↄ().C().C().Ↄ().$(); // [())][[]
 	}
 }

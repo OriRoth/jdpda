@@ -34,6 +34,6 @@ public class LBalancedParentheses {
 			.go();
 
 	public static void main(String[] args) {
-		START().lp().lp().lp().rp().rp().rp().ACCEPT();
+		START().lp().lp().lp().rp().rp().rp().$();
 	}
 }

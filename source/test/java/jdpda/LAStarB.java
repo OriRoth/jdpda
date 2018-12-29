@@ -32,7 +32,7 @@ public class LAStarB {
 			.go();
 
 	public static void main(String[] args) {
-		START().a().a().a().b().ACCEPT();
-		START().b().ACCEPT();
+		START().a().a().a().b().$();
+		START().b().$();
 	}
 }

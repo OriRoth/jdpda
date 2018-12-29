@@ -37,8 +37,8 @@ public class LAPlusBB {
 			.go();
 	
 	public static void main(String[] args) {
-		START().a().a().a().a().b().b().ACCEPT();
-		START().b().STUCK();
-		START().a().b().a().STUCK();
+		START().a().a().a().a().b().b().$();
+		START().b().ø();
+		START().a().b().a().ø();
 	}
 }

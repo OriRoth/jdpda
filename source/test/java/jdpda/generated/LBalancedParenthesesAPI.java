@@ -1,30 +1,29 @@
 package jdpda.generated;
 
 public class LBalancedParenthesesAPI {
-	public interface Stuck { void STUCK(); }
-	public interface Terminated { void TERMINATED(); }
-	public interface Accept { void ACCEPT(); }
+	public interface ø { void ø(); }
+	public interface ¢ { void ¢(); }
+	public interface $ { void $(); }
+	public static q0_E<$, ø> START() { return null; }
 
-	public static q0_E<Accept, Stuck> START() { return null; }
-
-	public interface q0_E<q0, q1> extends Accept {
-		q1_X_E<q0, q1> lp();
-		Stuck rp();
+	public interface q0_E<τq0, τq1> extends $ {
+		q1_X_E<τq0, τq1> lp();
+		ø rp();
 	}
-	public interface q1_X_E<q0, q1> extends Terminated {
-		q1_X_X<q0_E<q0, q1>, q0_E<q0, q1>> lp();
-		q0_E<q0, q1> rp();
+	public interface q1_X_E<τq0, τq1> extends ¢ {
+		q1_X_X<q0_E<τq0, τq1>, q0_E<τq0, τq1>> lp();
+		q0_E<τq0, τq1> rp();
 	}
-	public interface q1_X_X<q0, q1> extends Terminated {
-		q1_X_X<q0_X<q0, q1>, q1_X<q0, q1>> lp();
-		q1_X<q0, q1> rp();
+	public interface q1_X_X<τq0, τq1> extends ¢ {
+		q1_X_X<q0_X<τq0, τq1>, q1_X<τq0, τq1>> lp();
+		q1_X<τq0, τq1> rp();
 	}
-	public interface q0_X<q0, q1> extends Accept {
-		Stuck lp();
-		Stuck rp();
+	public interface q0_X<τq0, τq1> extends $ {
+		ø lp();
+		ø rp();
 	}
-	public interface q1_X<q0, q1> extends Terminated {
-		q1_X_X<q0, q1> lp();
-		q1 rp();
+	public interface q1_X<τq0, τq1> extends ¢ {
+		q1_X_X<τq0, τq1> lp();
+		τq1 rp();
 	}
 }

@@ -21,16 +21,16 @@ import jdpda.DPDA.δ;
  * @param <Σ> alphabet enum
  * @param <Γ> stack symbols enum
  */
-public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
-	private static final String ACCEPT = "Accept";
-	private static final String TERMINATED = "Terminated";
-	private static final String STUCK = "Stuck";
+public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
+	private static final String ACCEPT = "$";
+	private static final String TERMINATED = "¢";
+	private static final String STUCK = "ø";
 	final String name;
 	final DPDA<Q, Σ, Γ> dpda;
 	final String encoding;
 	private final Map<String, String> types = new LinkedHashMap<>();
 
-	public DPDA2JavaFluentAPIEncoder(final String name, final DPDA<Q, Σ, Γ> dpda) {
+	public Encoder(final String name, final DPDA<Q, Σ, Γ> dpda) {
 		this.name = name;
 		this.dpda = dpda;
 		this.encoding = encoding();
@@ -54,12 +54,12 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	}
 
 	private static String makeInterface(final String name) {
-		return String.format("public interface %s { void %s(); }", name, name.toUpperCase());
+		return String.format("public interface %s { void %s(); }", name, name);
 	}
 
 	private String startMethod() {
 		return "\t" + String.format("public static %s<%s> START() { return null; }\n", //
-				requestTypeName(dpda.q0, new Word<>(dpda.γ0)), //
+				encodedName(dpda.q0, new Word<>(dpda.γ0)), //
 				dpda.Q().map(q -> dpda.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(", "))//
 		);
 	}
@@ -69,24 +69,35 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * input letter.
 	 * 
 	 * @param q current state
+	 * @param α all known information about the top of the stack
 	 * @param σ current input letter
-	 * @param α current stack symbols to be pushed
 	 * @return next state type
 	 */
-	public String consolidatedTransitionType(final Q q, final Σ σ, final Word<Γ> α) {
+	public String consolidateConsuming(final Q q, final Word<Γ> α, final Σ σ) {
+		if (σ == null)
+			return consolidateEpsilon(q, α);
 		if (α.isEmpty()) {
 			assert σ == null;
-			return q + "";
+			return τ(q);
 		}
-		final δ<Q, Σ, Γ> δ = dpda.consolidate(q, σ, α.top());
-		if (δ == null) // assert σ != null;
-			return STUCK;
-		final Word<Γ> rest = new Word<>(α).pop();
+		final δ<Q, Σ, Γ> δ = dpda.consolidateConsuming(q, σ, α.top());
+		return (δ == null) ? STUCK : consolidateWithEpsilon(δ, new Word<>(α).pop());
+	}
+
+	public String consolidateEpsilon(final Q q, final Word<Γ> α) {
+		return (α.isEmpty()) ? τ(q) : consolidateWithEpsilon(dpda.consolidateEpsilon(q, α.top()), new Word<>(α).pop());
+	}
+
+	private String consolidateWithEpsilon(final δ<Q, Σ, Γ> δ, final Word<Γ> α) {
 		if (δ.α.isEmpty())
-			return consolidatedTransitionType(δ.q$, null, rest);
+			return consolidateEpsilon(δ.q$, α);
 		return String.format("%s<%s>", //
-				requestTypeName(δ.q$, δ.α), dpda.Q().map(q$ -> consolidatedTransitionType(q$, null, rest)).collect(Collectors.joining(", "))//
+				encodedName(δ.q$, δ.α), dpda.Q().map(q$ -> consolidateEpsilon(q$, α)).collect(Collectors.joining(", "))//
 		);
+	}
+
+	static String τ(Object o) {
+		return "τ" + o;
 	}
 
 	/**
@@ -97,21 +108,22 @@ public class DPDA2JavaFluentAPIEncoder<Q extends Enum<Q>, Σ extends Enum<Σ>, �
 	 * @param α current stack symbols to be pushed
 	 * @return type name
 	 */
-	private String requestTypeName(final Q q, final Word<Γ> α) {
+	private String encodedName(final Q q, final Word<Γ> α) {
 		final String $ = pushTypeName(q, α);
 		if (types.containsKey($))
 			return $;
 		types.put($, null); // Pending computation.
-		types.put($, encodeType(q, α, $));
+		types.put($, encodedBody(q, α, $));
 		return $;
 	}
 
-	private String encodeType(final Q q, final Word<Γ> α, final String name) {
+	private String encodedBody(final Q q, final Word<Γ> α, final String name) {
 		return String.format("\tpublic interface %s<%s> extends %s {\n%s\t}", //
 				name, //
-				dpda.Q().map(Enum::name).collect(Collectors.joining(", ")), //
+				dpda.Q().map(Encoder::τ).collect(Collectors.joining(", ")), //
 				dpda.isAccepting(q) ? ACCEPT : TERMINATED, //
-				dpda.Σ().map(σ -> String.format("\t\t%s %s();\n", consolidatedTransitionType(q, σ, α), σ)).reduce("", String::concat)//
+				dpda.Σ().map(σ -> String.format("\t\t%s %s();\n", consolidateConsuming(q, α, σ), σ)).reduce("",
+						String::concat)//
 		);
 	}
 
