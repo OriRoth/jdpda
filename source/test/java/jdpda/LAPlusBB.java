@@ -2,18 +2,18 @@ package jdpda;
 
 import static jdpda.LAPlusBB.Σ.a;
 import static jdpda.LAPlusBB.Σ.b;
-import static jdpda.LAPlusBB.Γ.X;
+import static jdpda.LAPlusBB.Γ.γ0;
 import static jdpda.LAPlusBB.Γ.Y;
-import static jdpda.LAPlusBB.State.q0;
-import static jdpda.LAPlusBB.State.q1;
-import static jdpda.LAPlusBB.State.q2;
-import static jdpda.LAPlusBB.State.q3;
+import static jdpda.LAPlusBB.Q.q0;
+import static jdpda.LAPlusBB.Q.q1;
+import static jdpda.LAPlusBB.Q.q2;
+import static jdpda.LAPlusBB.Q.q3;
 import static jdpda.generated.LAPlusBBAPI.*;
 
 import jdpda.DPDA;
 
 public class LAPlusBB {
-	enum State {
+	enum Q {
 		q0, q1, q2, q3
 	}
 
@@ -22,18 +22,18 @@ public class LAPlusBB {
 	}
 
 	enum Γ {
-		X, Y
+		γ0, Y
 	}
 
-	public static DPDA<State, Σ, Γ> M = new DPDA.Builder<>(State.class, Σ.class, Γ.class) //
-			.δ(q0, a, X, q1, Y, X) //
-			.δ(q1, a, X, q1, X, X) //
-			.δ(q1, b, X, q2) //
-			.δ(q2, null, X, q2) //
+	public static DPDA<Q, Σ, Γ> M = new DPDA.Builder<>(Q.class, Σ.class, Γ.class) //
+			.δ(q0, a, γ0, q1, Y, γ0) //
+			.δ(q1, a, γ0, q1, γ0, γ0) //
+			.δ(q1, b, γ0, q2) //
+			.δ(q2, null, γ0, q2) //
 			.δ(q2, b, Y, q3) //
 			.q0(q0) //
 			.F(q3) //
-			.γ0(X) //
+			.γ0(γ0) //
 			.go();
 	
 	public static void main(String[] args) {

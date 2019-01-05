@@ -35,11 +35,11 @@ public class GenerateAll {
 
 	@Test
 	public void generateAll() throws IOException {
-		System.out.println("Current output directory is " + PATH + ".");
-		Path directoryPath = Paths.get(PATH);
-		if (!Files.exists(directoryPath)) {
-			Files.createDirectory(directoryPath);
-			System.out.println("Folder " + directoryPath + " created successfully.");
+		System.out.println("Current output folder is " + PATH + ".");
+		Path outputFolder = Paths.get(PATH);
+		if (!Files.exists(outputFolder)) {
+			Files.createDirectory(outputFolder);
+			System.out.println("Folder " + outputFolder + " created successfully.");
 		}
 		for (String fileName : files.keySet()) {
 			Path filePath = Paths.get(PATH + fileName + ".java");
