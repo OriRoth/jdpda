@@ -101,12 +101,9 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 	}
 
 	private String consolidateWithEpsilon(final δ<Q, Σ, Γ> δ, final Word<Γ> α) {
-		if (δ.α.isEmpty())
-			return consolidateEpsilon(δ.q$, α);
-		return String.format("%s<%s>", //
-				encodedName(δ.q$, δ.α),//
-				dpda.Q().map(q$ -> consolidateEpsilon(q$, α)).collect(Collectors.joining(", "))//
-		);
+		return δ.α.isEmpty() ? consolidateEpsilon(δ.q$, α)
+				: String.format("%s<%s>", encodedName(δ.q$, δ.α),
+						dpda.Q().map(q$ -> consolidateEpsilon(q$, α)).collect(Collectors.joining(", ")));
 	}
 
 	static String τ(Object o) {
