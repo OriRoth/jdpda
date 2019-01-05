@@ -1,6 +1,6 @@
 package jdpda;
 
-import static jdpda.LAStar.Letter.a;
+import static jdpda.LAStar.Σ.a;
 import static jdpda.LAStar.Γ.X;
 import static jdpda.LAStar.Q.q0;
 import static jdpda.LAStar.Q.q1;
@@ -14,7 +14,7 @@ public class LAStar {
 		q0, q1, q2
 	}
 
-	enum Letter {
+	enum Σ {
 		a
 	}
 
@@ -22,7 +22,7 @@ public class LAStar {
 		X
 	}
 
-	public static DPDA<Q, Letter, Γ> M = new DPDA.Builder<>(Q.class, Letter.class, Γ.class) //
+	public static DPDA<Q, Σ, Γ> M = new DPDA.Builder<>(Q.class, Σ.class, Γ.class) //
 			.δ(q0, a, X, q1, X) //
 			.δ(q1, a, X, q2, X) //
 			.δ(q2, a, X, q2, X) //

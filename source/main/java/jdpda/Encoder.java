@@ -69,11 +69,11 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 	}
 
 	private String startMethod() {
-		return String.format("\tprivate static %s start() { return null; }\n", initialEncodingType());
+		return String.format("\tprivate static %s __() { return null; }\n", initialEncodingType());
 	}
 
 	private String startVariable() {
-		return String.format("\tpublic static %s __ = start();\n", initialEncodingType());
+		return String.format("\tpublic static final %s __ = __();\n", initialEncodingType());
 	}
 
 	/**

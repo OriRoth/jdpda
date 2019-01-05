@@ -4,8 +4,8 @@ public class LExtendedBalancedParenthesesAPI {
 	public interface ø { void ø(); }
 	public interface ¢ { void ¢(); }
 	public interface $ { void $(); }
-	private static q0_γ0<$, ø, ø> start() { return null; }
-	public static q0_γ0<$, ø, ø> __ = start();
+	private static q0_γ0<$, ø, ø> __() { return null; }
+	public static final q0_γ0<$, ø, ø> __ = __();
 
 	public interface q0_γ0<τq0, τq1, τq2> extends $ {
 		q1_γ1_γ0<τq0, τq1, τq2> c();
