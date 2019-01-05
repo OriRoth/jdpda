@@ -14,6 +14,7 @@ import org.junit.Test;
 import jdpda.DPDA;
 import jdpda.Encoder;
 
+@SuppressWarnings("static-method")
 public class GenerateAll {
 	private static final String PATH = "./source/test/java/jdpda/generated/";
 
@@ -38,7 +39,7 @@ public class GenerateAll {
 		Path directoryPath = Paths.get(PATH);
 		if (!Files.exists(directoryPath)) {
 			Files.createDirectory(directoryPath);
-			System.out.println("Directory " + directoryPath + " created successfully.");
+			System.out.println("Folder " + directoryPath + " created successfully.");
 		}
 		for (String fileName : files.keySet()) {
 			Path filePath = Paths.get(PATH + fileName + ".java");

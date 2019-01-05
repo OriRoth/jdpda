@@ -45,7 +45,7 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 		);
 	}
 
-	private String endInteraces() {
+	private static String endInteraces() {
 		return String.format("\t%s\n\t%s\n\t%s\n", //
 				makeInterface(STUCK), //
 				makeInterface(TERMINATED), //
@@ -54,14 +54,16 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 	}
 
 	private static String makeInterface(final String name) {
-		return String.format("public interface %s { void %s(); }", name, name);
+		String s1;
+		s1 = String.format("public interface %s { void %s(); }", name, name);
+		return s1;
 	}
 
 	private String startMethod() {
-		return "\t" + String.format("public static %s<%s> START() { return null; }\n", //
-				encodedName(dpda.q0, new Word<>(dpda.γ0)), //
-				dpda.Q().map(q -> dpda.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(", "))//
-		);
+		String s1 = "\t" + String.format("public static %s<%s> START() { return null; }\n",
+				encodedName(dpda.q0, new Word<>(dpda.γ0)),
+				dpda.Q().map(q -> dpda.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(", ")));
+		return s1;
 	}
 
 	/**
