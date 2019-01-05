@@ -1,31 +1,18 @@
 package jdpda;
 
-import static jdpda.LExtendedBalancedParentheses.Σ.Ↄ;
-import static jdpda.LExtendedBalancedParentheses.Σ.c;
-import static jdpda.LExtendedBalancedParentheses.Σ.ↄ;
-import static jdpda.LExtendedBalancedParentheses.StackSymbol.γ0;
-import static jdpda.LExtendedBalancedParentheses.StackSymbol.γ1;
-import static jdpda.LExtendedBalancedParentheses.Q.q0;
-import static jdpda.LExtendedBalancedParentheses.Q.q1;
-import static jdpda.LExtendedBalancedParentheses.Q.q2;
+import static jdpda.LExtendedBalancedParentheses.Σ.*;
+import static jdpda.LExtendedBalancedParentheses.Γ.*;
+import static jdpda.LExtendedBalancedParentheses.Q.*;
 import static jdpda.generated.LExtendedBalancedParenthesesAPI.__;
 
 import jdpda.DPDA;
 
 public class LExtendedBalancedParentheses {
-	enum Q {
-		q0, q1, q2
-	}
+	enum Q { q0, q1, q2 }
+	enum Σ { c, ↄ, Ↄ }
+	enum Γ { γ0, γ1 }
 
-	enum Σ {
-		c, ↄ, Ↄ
-	}
-
-	enum StackSymbol {
-		γ0, γ1
-	}
-
-	public static DPDA<Q, Σ, StackSymbol> M = new DPDA.Builder<>(Q.class, Σ.class, StackSymbol.class) //
+	public static DPDA<Q, Σ, Γ> M = new DPDA.Builder<>(Q.class, Σ.class, Γ.class) //
 			.δ(q0, c, γ0, q1, γ0, γ1) //
 			.δ(q1, c, γ1, q1, γ1, γ1) //
 			.δ(q1, ↄ, γ1, q1) //

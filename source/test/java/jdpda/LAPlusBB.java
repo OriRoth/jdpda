@@ -2,8 +2,8 @@ package jdpda;
 
 import static jdpda.LAPlusBB.Σ.a;
 import static jdpda.LAPlusBB.Σ.b;
-import static jdpda.LAPlusBB.StackSymbol.X;
-import static jdpda.LAPlusBB.StackSymbol.Y;
+import static jdpda.LAPlusBB.Γ.X;
+import static jdpda.LAPlusBB.Γ.Y;
 import static jdpda.LAPlusBB.State.q0;
 import static jdpda.LAPlusBB.State.q1;
 import static jdpda.LAPlusBB.State.q2;
@@ -21,11 +21,11 @@ public class LAPlusBB {
 		a, b
 	}
 
-	enum StackSymbol {
+	enum Γ {
 		X, Y
 	}
 
-	public static DPDA<State, Σ, StackSymbol> M = new DPDA.Builder<>(State.class, Σ.class, StackSymbol.class) //
+	public static DPDA<State, Σ, Γ> M = new DPDA.Builder<>(State.class, Σ.class, Γ.class) //
 			.δ(q0, a, X, q1, Y, X) //
 			.δ(q1, a, X, q1, X, X) //
 			.δ(q1, b, X, q2) //

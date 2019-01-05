@@ -40,7 +40,7 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 		return String.format("public class %s {\n%s%s\n%s\n}", //
 				name, //
 				endInteraces(), //
-				startMethod(), //
+				start(), //
 				String.join("\n", types.values())//
 		);
 	}
@@ -57,27 +57,23 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 		return String.format("public interface %s { void %s(); }", name, name);
 	}
 
-	private String startMethod() {
-		return as() + bs();
+	private String start() {
+		return startMethod() + startVariable();
 	}
 
-	
-	private String startEncodingType() {
-		return 
-		String.format("%s<%s>",
+	private String initialEncodingType() {
+		return String.format("%s<%s>", //
 				encodedName(dpda.q0, new Word<>(dpda.γ0)),
-				dpda.Q().map(q -> dpda.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(", ")));
-	
+				dpda.Q().map(q -> dpda.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(", ")) //
+		);
 	}
-	private String as() {
-		return "\t" + String.format("private static %s start() { return null; }\n",
-				startEncodingType()
-				);
+
+	private String startMethod() {
+		return String.format("\tprivate static %s start() { return null; }\n", initialEncodingType());
 	}
-	
-	private String bs() {
-		return "\t" + String.format("public static %s __ = start();\n",
-				startEncodingType());
+
+	private String startVariable() {
+		return String.format("\tpublic static %s __ = start();\n", initialEncodingType());
 	}
 
 	/**
@@ -108,7 +104,8 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 		if (δ.α.isEmpty())
 			return consolidateEpsilon(δ.q$, α);
 		return String.format("%s<%s>", //
-				encodedName(δ.q$, δ.α), dpda.Q().map(q$ -> consolidateEpsilon(q$, α)).collect(Collectors.joining(", "))//
+				encodedName(δ.q$, δ.α),//
+				dpda.Q().map(q$ -> consolidateEpsilon(q$, α)).collect(Collectors.joining(", "))//
 		);
 	}
 
