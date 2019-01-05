@@ -21,7 +21,7 @@ public class DPDATest {
 		DPDA<Q, Σ, Γ> M = LExtendedBalancedParentheses.M;
 		Q q = Q.q0;
 		Word<Γ> S = new Word<>(Γ.γ0);
-		for (Σ σ : Arrays.asList(c, Ↄ, c, c, c, c, Ↄ, c, ↄ)) {
+		for (Σ σ : new Σ[] {c, Ↄ, c, c, c, c, Ↄ, c, ↄ}) {
 			δ<Q, Σ, Γ> δ = M.δ(q, σ, S.top());
 			assert δ != null : "Computation terminated upon consuming " + σ;
 			q = δ.q$;
