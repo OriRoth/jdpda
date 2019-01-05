@@ -1,23 +1,23 @@
 package jdpda;
 
-import static jdpda.LExtendedBalancedParentheses.Letter.Ↄ;
-import static jdpda.LExtendedBalancedParentheses.Letter.c;
-import static jdpda.LExtendedBalancedParentheses.Letter.ↄ;
+import static jdpda.LExtendedBalancedParentheses.Σ.Ↄ;
+import static jdpda.LExtendedBalancedParentheses.Σ.c;
+import static jdpda.LExtendedBalancedParentheses.Σ.ↄ;
 import static jdpda.LExtendedBalancedParentheses.StackSymbol.γ0;
 import static jdpda.LExtendedBalancedParentheses.StackSymbol.γ1;
-import static jdpda.LExtendedBalancedParentheses.State.q0;
-import static jdpda.LExtendedBalancedParentheses.State.q1;
-import static jdpda.LExtendedBalancedParentheses.State.q2;
-import static jdpda.generated.LExtendedBalancedParenthesesAPI.START;
+import static jdpda.LExtendedBalancedParentheses.Q.q0;
+import static jdpda.LExtendedBalancedParentheses.Q.q1;
+import static jdpda.LExtendedBalancedParentheses.Q.q2;
+import static jdpda.generated.LExtendedBalancedParenthesesAPI.__;
 
 import jdpda.DPDA;
 
 public class LExtendedBalancedParentheses {
-	enum State {
+	enum Q {
 		q0, q1, q2
 	}
 
-	enum Letter {
+	enum Σ {
 		c, ↄ, Ↄ
 	}
 
@@ -25,7 +25,7 @@ public class LExtendedBalancedParentheses {
 		γ0, γ1
 	}
 
-	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
+	public static DPDA<Q, Σ, StackSymbol> M = new DPDA.Builder<>(Q.class, Σ.class, StackSymbol.class) //
 			.δ(q0, c, γ0, q1, γ0, γ1) //
 			.δ(q1, c, γ1, q1, γ1, γ1) //
 			.δ(q1, ↄ, γ1, q1) //
@@ -39,12 +39,12 @@ public class LExtendedBalancedParentheses {
 			.go();
 
 	public static void main(String[] args) {
-		START().c().ↄ().$();
-		START().c().ↄ().ↄ().ø();
-		START().c().c().c().ↄ().ↄ().¢();
-		START().c().c().c().ↄ().ↄ().ↄ().$();
-		START().c().c().c().ↄ().Ↄ().c().ↄ().$();
-		START().c().c().c().ↄ().Ↄ().c().¢();
-		START().c().c().c().ↄ().Ↄ().c().Ↄ().$();
+		__.c().ↄ().$();
+		__.c().ↄ().ↄ().ø();
+		__.c().c().c().ↄ().ↄ().¢();
+		__.c().c().c().ↄ().ↄ().ↄ().$();
+		__.c().c().c().ↄ().Ↄ().c().ↄ().$();
+		__.c().c().c().ↄ().Ↄ().c().¢();
+		__.c().c().c().ↄ().Ↄ().c().Ↄ().$();
 	}
 }

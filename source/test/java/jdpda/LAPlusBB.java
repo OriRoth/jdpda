@@ -1,14 +1,14 @@
 package jdpda;
 
-import static jdpda.LAPlusBB.Letter.a;
-import static jdpda.LAPlusBB.Letter.b;
+import static jdpda.LAPlusBB.Σ.a;
+import static jdpda.LAPlusBB.Σ.b;
 import static jdpda.LAPlusBB.StackSymbol.X;
 import static jdpda.LAPlusBB.StackSymbol.Y;
 import static jdpda.LAPlusBB.State.q0;
 import static jdpda.LAPlusBB.State.q1;
 import static jdpda.LAPlusBB.State.q2;
 import static jdpda.LAPlusBB.State.q3;
-import static jdpda.generated.LAPlusBBAPI.START;
+import static jdpda.generated.LAPlusBBAPI.*;
 
 import jdpda.DPDA;
 
@@ -17,7 +17,7 @@ public class LAPlusBB {
 		q0, q1, q2, q3
 	}
 
-	enum Letter {
+	enum Σ {
 		a, b
 	}
 
@@ -25,7 +25,7 @@ public class LAPlusBB {
 		X, Y
 	}
 
-	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
+	public static DPDA<State, Σ, StackSymbol> M = new DPDA.Builder<>(State.class, Σ.class, StackSymbol.class) //
 			.δ(q0, a, X, q1, Y, X) //
 			.δ(q1, a, X, q1, X, X) //
 			.δ(q1, b, X, q2) //
@@ -37,8 +37,8 @@ public class LAPlusBB {
 			.go();
 	
 	public static void main(String[] args) {
-		START().a().a().a().a().b().b().$();
-		START().b().ø();
-		START().a().b().a().ø();
+		__.a().a().a().a().b().b().$();
+		__.b().ø();
+		__.a().b().a().ø();
 	}
 }

@@ -1,21 +1,21 @@
 package jdpda;
 
-import static jdpda.LBalancedParentheses.Letter.lp;
-import static jdpda.LBalancedParentheses.Letter.rp;
+import static jdpda.LBalancedParentheses.Σ.lp;
+import static jdpda.LBalancedParentheses.Σ.rp;
 import static jdpda.LBalancedParentheses.StackSymbol.E;
 import static jdpda.LBalancedParentheses.StackSymbol.X;
-import static jdpda.LBalancedParentheses.State.q0;
-import static jdpda.LBalancedParentheses.State.q1;
-import static jdpda.generated.LBalancedParenthesesAPI.START;
+import static jdpda.LBalancedParentheses.Q.q0;
+import static jdpda.LBalancedParentheses.Q.q1;
+import static jdpda.generated.LBalancedParenthesesAPI.*;
 
 import jdpda.DPDA;
 
 public class LBalancedParentheses {
-	enum State {
+	enum Q {
 		q0, q1
 	}
 
-	enum Letter {
+	enum Σ {
 		lp, rp
 	}
 
@@ -23,7 +23,7 @@ public class LBalancedParentheses {
 		E, X
 	}
 
-	public static DPDA<State, Letter, StackSymbol> M = new DPDA.Builder<>(State.class, Letter.class, StackSymbol.class) //
+	public static DPDA<Q, Σ, StackSymbol> M = new DPDA.Builder<>(Q.class, Σ.class, StackSymbol.class) //
 			.δ(q0, lp, E, q1, E, X) //
 			.δ(q1, lp, X, q1, X, X) //
 			.δ(q1, rp, X, q1) //
@@ -34,6 +34,6 @@ public class LBalancedParentheses {
 			.go();
 
 	public static void main(String[] args) {
-		START().lp().lp().lp().rp().rp().rp().$();
+		__.lp().lp().lp().rp().rp().rp().$();
 	}
 }

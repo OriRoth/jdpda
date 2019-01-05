@@ -5,7 +5,7 @@ import static jdpda.LAStarB.Letter.b;
 import static jdpda.LAStarB.StackSymbol.X;
 import static jdpda.LAStarB.State.q0;
 import static jdpda.LAStarB.State.q1;
-import static jdpda.generated.LAStarBAPI.START;
+import static jdpda.generated.LAStarBAPI.*;
 
 import jdpda.DPDA;
 
@@ -32,7 +32,7 @@ public class LAStarB {
 			.go();
 
 	public static void main(String[] args) {
-		START().a().a().a().b().$();
-		START().b().$();
+		__.a().a().a().b().$();
+		__.b().$();
 	}
 }
