@@ -110,9 +110,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	
 	public δ<Q, Σ, Γ> consolidateEpsilon(final Q q, final Γ γ) {
 		Q q$ = q;
-		final Word<Γ> s = new Word<>(γ);
-		// subsequent ε transitions.
-		for (;;) {
+		for (final Word<Γ> s = new Word<>(γ);;) {
 			if (s.isEmpty())
 				return new δ<>(q, null, γ, q$, s);
 			final δ<Q, Σ, Γ> δ = δ(q$, s.top());
