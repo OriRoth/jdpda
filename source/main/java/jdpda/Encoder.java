@@ -14,7 +14,7 @@ import jdpda.DPDA.δ;
  * accepts the input word {@code ab...z}; A chain of a rejected input word
  * either do not type-check, or terminate with {@code STUCK()} call; Otherwise
  * the chain may terminate its computation by calling {@code TERMINATED()}.
- * 
+ *
  * @author Ori Roth
  *
  * @param <Q> states enum
@@ -24,10 +24,14 @@ import jdpda.DPDA.δ;
 public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	private static final String ACCEPT = "$";
 	private static final String TERMINATED = "¢";
-	private static final String STUCK = "ø";
+	private static final String REJECT = "ø";
+
 	final String name;
+
 	final DPDA<Q, Σ, Γ> dpda;
+
 	final String encoding;
+
 	private final Map<String, String> types = new LinkedHashMap<>();
 
 	public Encoder(final String name, final DPDA<Q, Σ, Γ> dpda) {
@@ -36,18 +40,39 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 		this.encoding = encoding();
 	}
 
-	private String encoding() {
-		return String.format("public class %s {\n%s%s\n%s\n}", //
-				name, //
-				endInteraces(), //
-				start(), //
-				String.join("\n", types.values())//
-		);
+	/**
+	 * Computes the type representing the state of the automaton after consuming an
+	 * input letter.
+	 *
+	 * @param q current state
+	 * @param α all known information about the top of the stack
+	 * @param σ current input letter
+	 * @return next state type
+	 */
+	public String next(final Q q, final Word<Γ> α, final Σ σ) {
+		if (σ == null)
+			return consolidate(q, α);
+		if (α.isEmpty()) {
+			assert σ == null;
+			return τ(q);
+		}
+		final δ<Q, Σ, Γ> δ = dpda.δδ(q, σ, α.top());
+		return δ == null ? REJECT : consolidateWithEpsilon(δ, new Word<>(α).pop());
+	}
+
+	public String consolidate(final Q q, final Word<Γ> α) {
+		return α.isEmpty() ? τ(q) : consolidateWithEpsilon(dpda.δδ(q, α.top()), new Word<>(α).pop());
+	}
+
+	private String consolidateWithEpsilon(final δ<Q, Σ, Γ> δ, final Word<Γ> α) {
+		return δ.α.isEmpty() ? consolidate(δ.q$, α)
+				: String.format("%s<%s>", encodedName(δ.q$, δ.α),
+						dpda.Q().map(q$ -> consolidate(q$, α)).collect(Collectors.joining(", ")));
 	}
 
 	private static String endInteraces() {
 		return String.format("\t%s\n\t%s\n\t%s\n", //
-				makeInterface(STUCK), //
+				makeInterface(REJECT), //
 				makeInterface(TERMINATED), //
 				makeInterface(ACCEPT) //
 		);
@@ -57,63 +82,19 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 		return String.format("public interface %s { void %s(); }", name, name);
 	}
 
-	private String start() {
-		return startMethod() + startVariable();
-	}
-
-	private String initialEncodingType() {
-		return String.format("%s<%s>", //
-				encodedName(dpda.q0, new Word<>(dpda.γ0)),
-				dpda.Q().map(q -> dpda.isAccepting(q) ? ACCEPT : STUCK).collect(Collectors.joining(", ")) //
+	private String encodedBody(final Q q, final Word<Γ> α, final String name) {
+		return String.format("\tpublic interface %s<%s> extends %s {\n%s\t}", //
+				name, //
+				dpda.Q().map(x -> τ(x)).collect(Collectors.joining(", ")), //
+				dpda.isAccepting(q) ? ACCEPT : TERMINATED, //
+				dpda.Σ().map(σ -> String.format("\t\t%s %s();\n", next(q, α, σ), σ)).reduce("", String::concat)//
 		);
-	}
-
-	private String startMethod() {
-		return String.format("\tprivate static %s __() { return null; }\n", initialEncodingType());
-	}
-
-	private String startVariable() {
-		return String.format("\tpublic static final %s __ = __();\n", initialEncodingType());
-	}
-
-	/**
-	 * Computes the type representing the state of the automaton after consuming an
-	 * input letter.
-	 * 
-	 * @param q current state
-	 * @param α all known information about the top of the stack
-	 * @param σ current input letter
-	 * @return next state type
-	 */
-	public String consolidateConsuming(final Q q, final Word<Γ> α, final Σ σ) {
-		if (σ == null)
-			return consolidateEpsilon(q, α);
-		if (α.isEmpty()) {
-			assert σ == null;
-			return τ(q);
-		}
-		final δ<Q, Σ, Γ> δ = dpda.consolidateConsuming(q, σ, α.top());
-		return (δ == null) ? STUCK : consolidateWithEpsilon(δ, new Word<>(α).pop());
-	}
-
-	public String consolidateEpsilon(final Q q, final Word<Γ> α) {
-		return (α.isEmpty()) ? τ(q) : consolidateWithEpsilon(dpda.consolidateEpsilon(q, α.top()), new Word<>(α).pop());
-	}
-
-	private String consolidateWithEpsilon(final δ<Q, Σ, Γ> δ, final Word<Γ> α) {
-		return δ.α.isEmpty() ? consolidateEpsilon(δ.q$, α)
-				: String.format("%s<%s>", encodedName(δ.q$, δ.α),
-						dpda.Q().map(q$ -> consolidateEpsilon(q$, α)).collect(Collectors.joining(", ")));
-	}
-
-	static String τ(Object o) {
-		return "τ" + o;
 	}
 
 	/**
 	 * Get type name given a state and stack symbols to push. If this type is not
 	 * present, it is created.
-	 * 
+	 *
 	 * @param q current state
 	 * @param α current stack symbols to be pushed
 	 * @return type name
@@ -127,13 +108,19 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 		return $;
 	}
 
-	private String encodedBody(final Q q, final Word<Γ> α, final String name) {
-		return String.format("\tpublic interface %s<%s> extends %s {\n%s\t}", //
+	private String encoding() {
+		return String.format("public class %s {\n%s%s\n%s\n}", //
 				name, //
-				dpda.Q().map(Encoder::τ).collect(Collectors.joining(", ")), //
-				dpda.isAccepting(q) ? ACCEPT : TERMINATED, //
-				dpda.Σ().map(σ -> String.format("\t\t%s %s();\n", consolidateConsuming(q, α, σ), σ)).reduce("",
-						String::concat)//
+				endInteraces(), //
+				start(), //
+				String.join("\n", types.values())//
+		);
+	}
+
+	private String initialEncodingType() {
+		return String.format("%s<%s>", //
+				encodedName(dpda.q0, new Word<>(dpda.γ0)),
+				dpda.Q().map(q -> dpda.isAccepting(q) ? ACCEPT : REJECT).collect(Collectors.joining(", ")) //
 		);
 	}
 
@@ -144,5 +131,21 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 	 */
 	private String pushTypeName(final Q q, final List<Γ> α) {
 		return q + "_" + α.stream().map(Enum::name).collect(Collectors.joining("_"));
+	}
+
+	private String start() {
+		return startMethod() + startVariable();
+	}
+
+	private String startMethod() {
+		return String.format("\tprivate static %s __() { return null; }\n", initialEncodingType());
+	}
+
+	private String startVariable() {
+		return String.format("\tpublic static final %s __ = __();\n", initialEncodingType());
+	}
+
+	String τ(final Q q) {
+		return "τ" + q;
 	}
 }

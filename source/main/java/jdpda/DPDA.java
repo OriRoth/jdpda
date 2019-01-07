@@ -86,7 +86,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	 * @param γ current stack symbol
 	 * @return matching consolidated transition
 	 */
-	public δ<Q, Σ, Γ> consolidateConsuming(final Q q, final Σ σ, final Γ γ) {
+	public δ<Q, Σ, Γ> δδ(final Q q, final Σ σ, final Γ γ) {
 		Q q$ = q;
 		final Word<Γ> s = new Word<>(γ);
 		if (σ != null) { // Consuming transition.
@@ -108,7 +108,7 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 		}
 	}
 	
-	public δ<Q, Σ, Γ> consolidateEpsilon(final Q q, final Γ γ) {
+	public δ<Q, Σ, Γ> δδ(final Q q, final Γ γ) {
 		Q q$ = q;
 		for (final Word<Γ> s = new Word<>(γ);;) {
 			if (s.isEmpty())
