@@ -61,7 +61,10 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 	}
 
 	public String consolidate(final Q q, final Word<Γ> α) {
-		return α.isEmpty() ? τ(q) : consolidateWithEpsilon(dpda.δδ(q, α.top()), new Word<>(α).pop());
+		return (α.isEmpty()) ? τ(q) : //
+				dpda.δ(q, α.top()) == null ? String.format("%s<%s>", encodedName(q, α),
+						dpda.Q().map(q$ -> τ(q$)).collect(Collectors.joining(", "))) : //
+						consolidateWithEpsilon(dpda.δδ(q, α.top()), new Word<>(α).pop());
 	}
 
 	private String consolidateWithEpsilon(final δ<Q, Σ, Γ> δ, final Word<Γ> α) {
