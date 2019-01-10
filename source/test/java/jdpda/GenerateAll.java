@@ -12,7 +12,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import jdpda.DPDA;
-import jdpda.Encoder;
+import jdpda.Compiler;
 
 @SuppressWarnings("static-method")
 public class GenerateAll {
@@ -30,7 +30,7 @@ public class GenerateAll {
 	static {
 		for (Object[] APIClass : APIClasses)
 			files.put((String) APIClass[0], "package jdpda.generated;\n\n"
-					+ new Encoder<>((String) APIClass[0], (DPDA<?, ?, ?>) APIClass[1]).encoding);
+					+ new Compiler<>((String) APIClass[0], (DPDA<?, ?, ?>) APIClass[1]).go());
 	}
 
 	@Test

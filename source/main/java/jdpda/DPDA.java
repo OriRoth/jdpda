@@ -23,6 +23,11 @@ public class DPDA<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	final Set<Q> q$;
 	final Q q0;
 	final Γ γ0;
+	
+	
+	public String javaTypeEncoding(String className) {
+		return new Compiler<>(className, this).go();
+	}
 
 	public DPDA(final Class<Q> Q, final Class<Σ> Σ, final Class<Γ> Γ, final Set<δ<Q, Σ, Γ>> δs, final Set<Q> q$,
 			final Q q0, final Γ γ0) {

@@ -21,54 +21,10 @@ import jdpda.DPDA.δ;
  * @param <Σ> alphabet enum
  * @param <Γ> stack symbols enum
  */
-public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
+public class Compiler<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>> {
 	private static final String ACCEPT = "$";
 	private static final String TERMINATED = "¢";
 	private static final String REJECT = "ø";
-
-	final String name;
-
-	final DPDA<Q, Σ, Γ> dpda;
-
-	final String encoding;
-
-	private final Map<String, String> types = new LinkedHashMap<>();
-
-	public Encoder(final String name, final DPDA<Q, Σ, Γ> dpda) {
-		this.name = name;
-		this.dpda = dpda;
-		this.encoding = encoding();
-	}
-
-	/**
-	 * Computes the type representing the state of the automaton after consuming an
-	 * input letter.
-	 *
-	 * @param q current state
-	 * @param α all known information about the top of the stack
-	 * @param σ current input letter
-	 * @return next state type
-	 */
-	public String next(final Q q, final Word<Γ> α, final Σ σ) {
-		if (σ == null)
-			return consolidate(q, α);
-		if (α.isEmpty()) {
-			assert σ == null;
-			return τ(q);
-		}
-		final δ<Q, Σ, Γ> δ = dpda.δδ(q, σ, α.top());
-		return δ == null ? REJECT : consolidateWithEpsilon(δ, new Word<>(α).pop());
-	}
-
-	public String consolidate(final Q q, final Word<Γ> α) {
-		return α.isEmpty() ? τ(q) : consolidateWithEpsilon(dpda.δδ(q, α.top()), new Word<>(α).pop());
-	}
-
-	private String consolidateWithEpsilon(final δ<Q, Σ, Γ> δ, final Word<Γ> α) {
-		return δ.α.isEmpty() ? consolidate(δ.q$, α)
-				: String.format("%s<%s>", encodedName(δ.q$, δ.α),
-						dpda.Q().map(q$ -> consolidate(q$, α)).collect(Collectors.joining(", ")));
-	}
 
 	private static String endInteraces() {
 		return String.format("\t%s\n\t%s\n\t%s\n", //
@@ -79,11 +35,42 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 	}
 
 	private static String makeInterface(final String name) {
-		return String.format("public interface %s { void %s(); }", name, name);
+		return String.format("interface %s { void %s(); }", name, name);
+	}
+
+
+	final String name;
+
+	final DPDA<Q, Σ, Γ> dpda;
+
+	private final Map<String, String> types = new LinkedHashMap<>();
+
+	public Compiler(final String name, final DPDA<Q, Σ, Γ> dpda) {
+		this.name = name;
+		this.dpda = dpda;
+	}
+
+	public String go() {
+		return String.format("public interface %s {\n%s%s\n%s\n}", //
+				name, //
+				endInteraces(), //
+				start(), //
+				String.join("\n", types.values())//
+		);
+	}
+
+	private String consolidate(final Q q, final Word<Γ> α) {
+		return α.isEmpty() ? τ(q) : consolidateWithEpsilon(dpda.δδ(q, α.top()), new Word<>(α).pop());
+	}
+
+	private String consolidateWithEpsilon(final δ<Q, Σ, Γ> δ, final Word<Γ> α) {
+		return δ.α.isEmpty() ? consolidate(δ.q$, α)
+				: String.format("%s<%s>", encodedName(δ.q$, δ.α),
+						dpda.Q().map(q$ -> consolidate(q$, α)).collect(Collectors.joining(", ")));
 	}
 
 	private String encodedBody(final Q q, final Word<Γ> α, final String name) {
-		return String.format("\tpublic interface %s<%s> extends %s {\n%s\t}", //
+		return String.format("\tinterface %s<%s> extends %s {\n%s\t}", //
 				name, //
 				dpda.Q().map(x -> τ(x)).collect(Collectors.joining(", ")), //
 				dpda.isAccepting(q) ? ACCEPT : TERMINATED, //
@@ -108,20 +95,31 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 		return $;
 	}
 
-	private String encoding() {
-		return String.format("public class %s {\n%s%s\n%s\n}", //
-				name, //
-				endInteraces(), //
-				start(), //
-				String.join("\n", types.values())//
-		);
-	}
-
 	private String initialEncodingType() {
 		return String.format("%s<%s>", //
 				encodedName(dpda.q0, new Word<>(dpda.γ0)),
 				dpda.Q().map(q -> dpda.isAccepting(q) ? ACCEPT : REJECT).collect(Collectors.joining(", ")) //
 		);
+	}
+
+	/**
+	 * Computes the type representing the state of the automaton after consuming an
+	 * input letter.
+	 *
+	 * @param q current state
+	 * @param α all known information about the top of the stack
+	 * @param σ current input letter
+	 * @return next state type
+	 */
+	private String next(final Q q, final Word<Γ> α, final Σ σ) {
+		if (σ == null)
+			return consolidate(q, α);
+		if (α.isEmpty()) {
+			assert σ == null;
+			return τ(q);
+		}
+		final δ<Q, Σ, Γ> δ = dpda.δδ(q, σ, α.top());
+		return δ == null ? REJECT : consolidateWithEpsilon(δ, new Word<>(α).pop());
 	}
 
 	/**
@@ -138,14 +136,14 @@ public class Encoder<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ>
 	}
 
 	private String startMethod() {
-		return String.format("\tprivate static %s __() { return null; }\n", initialEncodingType());
+		return String.format("\tstatic %s __() { return null; }\n", initialEncodingType());
 	}
 
 	private String startVariable() {
-		return String.format("\tpublic static final %s __ = __();\n", initialEncodingType());
+		return String.format("\t%s __ = __();\n", initialEncodingType());
 	}
 
 	String τ(final Q q) {
-		return "τ" + q;
+		return "e" + q.ordinal();
 	}
 }

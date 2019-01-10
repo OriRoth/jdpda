@@ -11,7 +11,6 @@ import jdpda.LExtendedBalancedParentheses.Q;
 
 import static jdpda.LExtendedBalancedParentheses.Σ.*;
 
-import java.util.Arrays;
 
 @SuppressWarnings("static-method")
 public class DPDATest {
