@@ -15,7 +15,7 @@ import jdpda.DPDA;
 import jdpda.Compiler;
 
 @SuppressWarnings("static-method")
-public class GenerateAll {
+public class CompileAll {
 	private static final String PATH = "./source/test/java/jdpda/generated/";
 
 	public static final Map<String, String> files = new HashMap<>();
@@ -34,7 +34,7 @@ public class GenerateAll {
 	}
 
 	@Test
-	public void generateAll() throws IOException {
+	public void compileAll() throws IOException {
 		System.out.println("Current output folder is " + PATH + ".");
 		Path outputFolder = Paths.get(PATH);
 		if (!Files.exists(outputFolder)) {

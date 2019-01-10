@@ -38,7 +38,6 @@ public class Compiler<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ
 		return String.format("interface %s { void %s(); }", name, name);
 	}
 
-
 	final String name;
 
 	final DPDA<Q, Σ, Γ> dpda;
@@ -74,7 +73,9 @@ public class Compiler<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ
 				name, //
 				dpda.Q().map(x -> τ(x)).collect(Collectors.joining(", ")), //
 				dpda.isAccepting(q) ? ACCEPT : TERMINATED, //
-				dpda.Σ().map(σ -> String.format("\t\t%s %s();\n", next(q, α, σ), σ)).reduce("", String::concat)//
+				dpda.Σ().filter(σ -> next(q, α, σ) != null)//
+						.map(σ -> String.format("\t\t%s %s();\n", next(q, α, σ), σ))//
+						.reduce("", String::concat)//
 		);
 	}
 
@@ -119,7 +120,7 @@ public class Compiler<Q extends Enum<Q>, Σ extends Enum<Σ>, Γ extends Enum<Γ
 			return τ(q);
 		}
 		final δ<Q, Σ, Γ> δ = dpda.δδ(q, σ, α.top());
-		return δ == null ? REJECT : consolidateWithEpsilon(δ, new Word<>(α).pop());
+		return δ == null ? null : consolidateWithEpsilon(δ, new Word<>(α).pop());
 	}
 
 	/**
